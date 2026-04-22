@@ -72,25 +72,30 @@ header{
 .today-panel{
   background:rgba(42,82,152,0.08);
   border:1px solid rgba(42,82,152,0.3);
-  border-radius:var(--radius);padding:20px 24px;
-  position:relative;z-index:1;min-height:180px;
+  border-radius:var(--radius);padding:24px 28px;
+  position:relative;z-index:1;min-height:220px;
   display:flex;flex-direction:column;
 }
-.today-panel-head{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
-.today-dot{width:8px;height:8px;border-radius:50%;background:#4a7fd4;animation:pulse 2s infinite;flex-shrink:0;}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.3);}}
-.today-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#4a7fd4;font-weight:600;}
+.today-panel-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.today-dot{width:10px;height:10px;border-radius:50%;background:#3ecf8e;animation:pulse 2s infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);box-shadow:0 0 0 0 rgba(62,207,142,0.7);}50%{opacity:1;transform:scale(1);box-shadow:0 0 0 6px rgba(62,207,142,0);}}
+.today-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#3ecf8e;font-weight:700;}
 .today-date{font-size:11px;color:var(--muted);margin-left:auto;letter-spacing:1px;}
-.today-trucks{display:flex;flex-direction:column;gap:10px;flex:1;}
+.today-trucks{display:flex;flex-direction:column;gap:12px;flex:1;}
 .today-truck-item{
-  display:flex;align-items:center;gap:12px;
-  padding:10px 14px;border-radius:8px;
+  display:flex;align-items:center;gap:14px;
+  padding:14px 16px;border-radius:8px;
   background:rgba(42,82,152,0.1);border:1px solid rgba(42,82,152,0.2);
+  cursor:pointer;transition:all .2s;
 }
-.today-truck-icon{font-size:20px;flex-shrink:0;}
-.today-truck-name{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1px;color:#fff;line-height:1;}
-.today-truck-meta{font-size:11px;color:var(--muted);margin-top:2px;}
-.today-truck-prop{font-size:10px;font-weight:600;margin-top:1px;text-transform:uppercase;letter-spacing:1px;}
+.today-truck-item:hover{
+  background:rgba(42,82,152,0.15);border-color:rgba(42,82,152,0.4);
+  transform:translateX(4px);
+}
+.today-truck-icon{font-size:24px;flex-shrink:0;}
+.today-truck-name{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:1px;color:#fff;line-height:1;}
+.today-truck-meta{font-size:12px;color:var(--muted);margin-top:3px;}
+.today-truck-prop{font-size:11px;font-weight:600;margin-top:2px;text-transform:uppercase;letter-spacing:1px;}
 .today-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);text-align:center;gap:8px;}
 .today-empty-icon{font-size:32px;opacity:.2;}
 .today-empty-txt{font-size:12px;letter-spacing:1px;}
@@ -156,6 +161,8 @@ header{
   width:4px;height:4px;border-radius:50%;background:#4a7fd4;
 }
 .cal-day.in-week{background:rgba(42,82,152,0.07);}
+.cal-day.selected{background:#2a5298!important;color:#fff!important;font-weight:700;}
+.cal-day.selected::after{background:rgba(255,255,255,.5)!important;}
 
 /* Legend */
 .legend{display:flex;flex-direction:column;gap:8px;}
@@ -167,10 +174,10 @@ header{
 .upcoming-items{display:flex;flex-direction:column;}
 .upcoming-item{
   display:flex;gap:10px;align-items:flex-start;
-  padding:10px 22px;cursor:pointer;transition:background .15s;
+  padding:10px 22px;cursor:pointer;transition:all .2s;
   border-left:2px solid transparent;
 }
-.upcoming-item:hover{background:var(--card);border-left-color:#2a5298;}
+.upcoming-item:hover{background:var(--card);border-left-color:#2a5298;transform:translateX(2px);}
 .upcoming-badge{border-radius:4px;padding:4px 8px;text-align:center;flex-shrink:0;min-width:40px;}
 .upcoming-badge .uday{font-family:'Bebas Neue',sans-serif;font-size:22px;line-height:1;color:#fff;}
 .upcoming-badge .umon{font-size:8px;text-transform:uppercase;letter-spacing:1px;font-weight:700;color:rgba(255,255,255,.65);}
@@ -277,6 +284,15 @@ header{
 .lb-img-wrap{overflow-y:auto;border-radius:8px;border:1px solid var(--border);flex:1;max-height:70vh;}
 .lb-img{width:100%;display:block;}
 .lb-no-img{padding:60px;text-align:center;color:var(--muted);font-size:14px;}
+.lb-pdf-viewer{width:100%;height:70vh;border:none;border-radius:8px;}
+.lb-pdf-btn{
+  display:block;width:100%;padding:20px;
+  background:linear-gradient(135deg,#2a5298,#1a4a6b);
+  color:#fff;text-align:center;font-family:'Bebas Neue',sans-serif;
+  font-size:20px;letter-spacing:2px;border-radius:8px;
+  text-decoration:none;transition:all .2s;
+}
+.lb-pdf-btn:hover{background:linear-gradient(135deg,#4a7fd4,#2a5298);transform:scale(1.02);}
 .lb-close{
   position:absolute;top:-12px;right:-12px;background:var(--accent2);
   color:#fff;border:none;width:28px;height:28px;border-radius:50%;
@@ -286,6 +302,15 @@ header{
 .lb-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;}
 .lb-prop{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:3px;}
 .lb-date{text-align:right;font-size:12px;color:#4a7fd4;font-weight:600;}
+.lb-actions{margin-top:12px;display:flex;gap:10px;flex-shrink:0;}
+.lb-btn{
+  flex:1;padding:10px 16px;border-radius:6px;
+  font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:1px;text-transform:uppercase;cursor:pointer;
+  border:1px solid var(--border);background:var(--surface);
+  color:var(--text);transition:all .2s;text-align:center;
+}
+.lb-btn:hover{border-color:#2a5298;color:#4a7fd4;}
 
 /* FOOTER */
 footer{
@@ -395,13 +420,17 @@ footer{
 <div class="lightbox" id="lightbox" onclick="closeLb(event)">
   <div class="lb-inner">
     <button class="lb-close" onclick="closeLb()">×</button>
-    <div class="lb-img-wrap">
+    <div class="lb-img-wrap" id="lbImgWrap">
       <img class="lb-img" id="lbImg" src="" alt="" style="display:none"/>
       <div class="lb-no-img" id="lbNoImg" style="display:none">No menu image available yet.</div>
     </div>
     <div class="lb-info">
       <div><div class="lb-name" id="lbName"></div><div class="lb-prop" id="lbProp"></div></div>
       <div class="lb-date" id="lbDate"></div>
+    </div>
+    <div class="lb-actions" id="lbActions" style="display:none;">
+      <button class="lb-btn" onclick="downloadMenu()">⬇ Download Menu</button>
+      <button class="lb-btn" onclick="openMenuFull()">↗ Open Full Size</button>
     </div>
   </div>
 </div>
@@ -419,7 +448,7 @@ const PROPS = [
   { id:'Presidio',         color:'#1a4a6b' },
 ];
 
-let trucks = [], filterProp = 'all', calYear, calMonth;
+let trucks = [], filterProp = 'all', filterDate = null, calYear, calMonth;
 
 const now = new Date(); now.setHours(0,0,0,0);
 const todayStr = iso(now);
@@ -487,7 +516,7 @@ function fmtDate(ds){return new Date(ds+'T00:00:00').toLocaleDateString('en-US',
 function fmtDay(ds){return new Date(ds+'T00:00:00').toLocaleDateString('en-US',{weekday:'long'});}
 
 function setFilter(pid){
-  filterProp=pid;
+  filterProp=pid; filterDate=null;
   document.querySelectorAll('.prop-btn').forEach(b=>b.classList.toggle('active',b.dataset.prop===pid));
   renderTodayPanel(); renderCalendar(); renderUpcoming(); renderMain();
 }
@@ -501,7 +530,7 @@ function renderTodayPanel(){
   }
   el.innerHTML=list.map(t=>{
     const col=getPropColor(t.property);
-    return `<div class="today-truck-item">
+    return `<div class="today-truck-item" onclick="openLb(${t.id})">
       <div class="today-truck-icon">🚚</div>
       <div>
         <div class="today-truck-name">${t.name} is on site today!</div>
@@ -536,7 +565,8 @@ function renderCalendar(){
     if(ds===todayStr) cls+=' today';
     if(evts.length)   cls+=' has-event';
     if(ds>=wS&&ds<=wE) cls+=' in-week';
-    grid.insertAdjacentHTML('beforeend',`<div class="${cls}">${d}</div>`);
+    if(ds===filterDate) cls+=' selected';
+    grid.insertAdjacentHTML('beforeend',`<div class="${cls}" onclick="selectDate('${ds}')">${d}</div>`);
   }
   const leg=document.getElementById('legend');
   leg.innerHTML='';
@@ -545,6 +575,11 @@ function renderCalendar(){
     leg.insertAdjacentHTML('beforeend',
       `<div class="legend-item"><div class="legend-dot" style="background:${p.color}"></div>${p.id}<span class="legend-count">${n}</span></div>`);
   });
+}
+
+function selectDate(ds){
+  filterDate = filterDate===ds ? null : ds;
+  renderCalendar(); renderMain();
 }
 
 function calNav(dir){
@@ -560,7 +595,7 @@ function renderUpcoming(){
   if(!items.length){list.innerHTML='<div style="padding:0 22px 10px;font-size:11px;color:var(--muted)">No upcoming visits.</div>';return;}
   list.innerHTML=items.map(t=>{
     const dt=new Date(t.date+'T00:00:00'),col=getPropColor(t.property);
-    return `<div class="upcoming-item">
+    return `<div class="upcoming-item" onclick="openLb(${t.id})">
       <div class="upcoming-badge" style="background:${col}">
         <div class="uday">${dt.getDate()}</div>
         <div class="umon">${dt.toLocaleString('default',{month:'short'})}</div>
@@ -575,7 +610,11 @@ function renderUpcoming(){
 
 function renderMain(){
   const {start:wS,end:wE}=getWeekBounds();
-  const filtered=trucks.filter(t=>matchProp(t));
+  let filtered=trucks.filter(t=>matchProp(t));
+  
+  // Apply date filter if set
+  if(filterDate) filtered=filtered.filter(t=>t.date===filterDate);
+
   const thisWeek=filtered.filter(t=>t.date>=wS&&t.date<=wE).sort((a,b)=>a.date.localeCompare(b.date));
   const future  =filtered.filter(t=>t.date>wE).sort((a,b)=>a.date.localeCompare(b.date));
   const past    =filtered.filter(t=>t.date<wS).sort((a,b)=>b.date.localeCompare(a.date));
@@ -584,6 +623,16 @@ function renderMain(){
   const wEndDt=new Date(wE+'T00:00:00');
 
   let html=`<div class="content-main-title">${label}</div>`;
+
+  // Date filter indicator
+  if(filterDate){
+    const dt=new Date(filterDate+'T00:00:00');
+    const dateStr=dt.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+    html+=`<div style="margin-bottom:18px;padding:12px 16px;background:rgba(42,82,152,0.1);border:1px solid rgba(42,82,152,0.3);border-radius:8px;display:flex;align-items:center;gap:12px;">
+      <span style="font-size:13px;color:#4a7fd4;">Showing visits for: <strong>${dateStr}</strong></span>
+      <button onclick="clearDateFilter()" style="margin-left:auto;padding:6px 14px;background:transparent;border:1px solid rgba(42,82,152,0.4);border-radius:6px;color:#4a7fd4;font-size:11px;font-weight:600;cursor:pointer;letter-spacing:1px;text-transform:uppercase;">Clear Filter</button>
+    </div>`;
+  }
 
   // THIS WEEK
   html+=`<div class="section-head">
@@ -595,28 +644,36 @@ function renderMain(){
     ?`<div class="trucks-grid">${thisWeek.map(t=>cardHtml(t,t.date===todayStr,false)).join('')}</div>`
     :`<div class="empty-section"><div class="ei">🚚</div><div class="em">No truck visits this week</div></div>`;
 
-  // FUTURE
-  html+=`<div class="section-head">
-    <span class="section-badge badge-future">Upcoming</span>
-    <span class="section-title">Future Visits</span>
-    <span class="section-count">${future.length} visit${future.length!==1?'s':''}</span>
-  </div>`;
-  html+=future.length
-    ?`<div class="trucks-grid">${future.map(t=>cardHtml(t,false,false)).join('')}</div>`
-    :`<div class="empty-section"><div class="ei">📅</div><div class="em">No future visits scheduled yet</div></div>`;
+  // Only show future/past if no date filter
+  if(!filterDate){
+    // FUTURE
+    html+=`<div class="section-head">
+      <span class="section-badge badge-future">Upcoming</span>
+      <span class="section-title">Future Visits</span>
+      <span class="section-count">${future.length} visit${future.length!==1?'s':''}</span>
+    </div>`;
+    html+=future.length
+      ?`<div class="trucks-grid">${future.map(t=>cardHtml(t,false,false)).join('')}</div>`
+      :`<div class="empty-section"><div class="ei">📅</div><div class="em">No future visits scheduled yet</div></div>`;
 
-  // PAST
-  html+=`<button class="past-toggle" id="pastToggle" onclick="togglePast()">
-    <span class="section-badge badge-past">Past Visits</span>
-    <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--muted);">Previous Food Truck Visits</span>
-    <span style="font-size:11px;color:var(--muted);">${past.length} visit${past.length!==1?'s':''}</span>
-    <span class="past-arrow">▼</span>
-  </button>
-  <div class="past-content" id="pastContent">
-    <div class="trucks-grid">${past.map(t=>cardHtml(t,false,true)).join('')}</div>
-  </div>`;
+    // PAST
+    html+=`<button class="past-toggle" id="pastToggle" onclick="togglePast()">
+      <span class="section-badge badge-past">Past Visits</span>
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--muted);">Previous Food Truck Visits</span>
+      <span style="font-size:11px;color:var(--muted);">${past.length} visit${past.length!==1?'s':''}</span>
+      <span class="past-arrow">▼</span>
+    </button>
+    <div class="past-content" id="pastContent">
+      <div class="trucks-grid">${past.map(t=>cardHtml(t,false,true)).join('')}</div>
+    </div>`;
+  }
 
   document.getElementById('mainContent').innerHTML=html;
+}
+
+function clearDateFilter(){
+  filterDate=null;
+  renderCalendar(); renderMain();
 }
 
 function cardHtml(t,isToday,isPast){
@@ -647,21 +704,75 @@ function togglePast(){
   document.getElementById('pastContent').classList.toggle('open');
 }
 
+let currentMenuUrls = [];
+
 function openLb(id){
   const t=trucks.find(x=>x.id===id); if(!t) return;
   const dt=new Date(t.date+'T00:00:00');
+  
   document.getElementById('lbName').textContent=t.name;
   document.getElementById('lbProp').textContent=t.property;
   document.getElementById('lbDate').textContent=`${dt.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})} · ${t.time}`;
-  const img=document.getElementById('lbImg'),noImg=document.getElementById('lbNoImg'),src=driveUrl(t.menu);
-  if(src){img.src=src;img.style.display='block';noImg.style.display='none';}
-  else{img.style.display='none';noImg.style.display='block';}
+  
+  const wrap=document.getElementById('lbImgWrap');
+  const actions=document.getElementById('lbActions');
+  
+  // Collect all menu URLs from columns E, F, G, H (menu, menu2, menu3, menu4)
+  // Since we only have menu in current data structure, we'll check if menu contains multiple URLs separated by |
+  const menuUrls = t.menu ? t.menu.split('|').map(u=>u.trim()).filter(u=>u) : [];
+  currentMenuUrls = menuUrls.map(driveUrl).filter(u=>u);
+  
+  if(!currentMenuUrls.length){
+    wrap.innerHTML='<div class="lb-no-img">No menu image available yet.</div>';
+    actions.style.display='none';
+    document.getElementById('lightbox').classList.add('open');
+    return;
+  }
+  
+  const firstUrl = currentMenuUrls[0];
+  
+  // Check if PDF
+  if(firstUrl.toLowerCase().endsWith('.pdf')){
+    wrap.innerHTML=`<a href="${firstUrl}" target="_blank" class="lb-pdf-btn">📄 Open Full Menu (PDF)</a>`;
+    actions.style.display='none';
+  } else {
+    // Show images stacked vertically
+    wrap.innerHTML = currentMenuUrls.map((url,i)=>`<img src="${url}" alt="Menu page ${i+1}" style="width:100%;display:block;${i>0?'margin-top:10px;':''}" onerror="this.style.display='none'"/>`).join('');
+    actions.style.display='flex';
+  }
+  
   document.getElementById('lightbox').classList.add('open');
 }
+
+function downloadMenu(){
+  if(!currentMenuUrls.length) return;
+  // For single image, download it
+  if(currentMenuUrls.length===1){
+    const url=currentMenuUrls[0];
+    const link=document.createElement('a');
+    link.href=url;
+    link.download=`menu-${Date.now()}.jpg`;
+    link.target='_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } else {
+    // For multiple images, open each in new tab (browser will handle download)
+    currentMenuUrls.forEach(url=>{
+      window.open(url,'_blank');
+    });
+  }
+}
+
+function openMenuFull(){
+  if(!currentMenuUrls.length) return;
+  currentMenuUrls.forEach(url=>window.open(url,'_blank'));
+}
+
 function closeLb(e){
   if(!e||e.target===document.getElementById('lightbox')||e.target.classList.contains('lb-close')){
     document.getElementById('lightbox').classList.remove('open');
-    document.getElementById('lbImg').src='';
+    currentMenuUrls=[];
   }
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLb();});
