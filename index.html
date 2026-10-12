@@ -190,11 +190,6 @@ body.light-mode .cal-day.today { background:rgba(30,58,138,0.12); }
 .cal-day.selected { background:var(--accent)!important; color:#fff!important; font-weight:700; }
 
 /* LEGEND & UPCOMING */
-.legend { display:flex; flex-direction:column; gap:8px; }
-.legend-item { display:flex; align-items:center; gap:8px; font-size:11px; color:var(--muted); }
-.legend-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-.legend-count { margin-left:auto; font-size:11px; color:var(--accent-light); font-weight:600; }
-
 .upcoming-items { display:flex; flex-direction:column; }
 .upcoming-item { display:flex; gap:10px; align-items:flex-start; padding:10px 22px; cursor:pointer; transition:all .2s; border-left:2px solid transparent; }
 .upcoming-item:hover { background:var(--card); border-left-color:var(--accent); transform:translateX(2px); }
@@ -220,13 +215,6 @@ body.light-mode .cal-day.today { background:rgba(30,58,138,0.12); }
 
 .spinner { width:28px; height:28px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 1s linear infinite; margin:0 auto 14px; }
 @keyframes spin { to { transform:rotate(360deg) } }
-
-/* LIGHTBOX */
-.lightbox { position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,.95); display:none; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(10px); }
-.lightbox.open { display:flex; }
-.lb-inner { position:relative; max-width:680px; width:100%; max-height:90vh; display:flex; flex-direction:column; }
-.lb-img-wrap { overflow-y:auto; border-radius:8px; border:1px solid var(--border); flex:1; min-height:450px; max-height:70vh; background:#0d0d1a; }
-.lb-close { position:absolute; top:-12px; right:-12px; background:var(--accent2); color:#fff; border:none; width:28px; height:28px; border-radius:50%; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:10; }
 
 /* MODALS */
 .modal-overlay { position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,.85); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:20px; }
@@ -417,19 +405,23 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 async function loadData() {
   document.getElementById('mainContent').innerHTML = '<div class="loading-state"><div class="spinner"></div></div>';
   
-  const { data, error } = await sb.from('bookings').select('*').order('visit_date', { ascending: true });
-  if (error) {
-    document.getElementById('mainContent').innerHTML = `<div style="text-align:center; color:var(--accent2); padding:40px;">Failed to load schedule: ${error.message}</div>`;
-    return;
-  }
+  try {
+    const { data, error } = await sb.from('bookings').select('*').order('visit_date', { ascending: true });
+    if (error) {
+      document.getElementById('mainContent').innerHTML = `<div style="text-align:center; color:var(--accent2); padding:40px;">Failed to load schedule: ${error.message}</div>`;
+      return;
+    }
 
-  allBookings = data || [];
-  renderStats();
-  renderToday();
-  renderCalendar();
-  renderUpcoming();
-  renderGrid();
-  populateTruckFilter();
+    allBookings = data || [];
+    renderStats();
+    renderToday();
+    renderCalendar();
+    renderUpcoming();
+    renderGrid();
+    populateTruckFilter();
+  } catch (err) {
+    document.getElementById('mainContent').innerHTML = `<div style="text-align:center; color:var(--accent2); padding:40px;">Error loading data: ${err.message}</div>`;
+  }
 }
 
 function renderStats() {
@@ -437,15 +429,21 @@ function renderStats() {
   const upcoming = allBookings.filter(b => b.visit_date >= todayIso);
   const trucksSet = new Set(allBookings.map(b => b.truck_name));
 
-  document.getElementById('statVisits').textContent = upcoming.length;
-  document.getElementById('statTrucks').textContent = trucksSet.size;
-  document.getElementById('todayDateLabel').textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const statVisits = document.getElementById('statVisits');
+  const statTrucks = document.getElementById('statTrucks');
+  const todayDateLabel = document.getElementById('todayDateLabel');
+
+  if (statVisits) statVisits.textContent = upcoming.length;
+  if (statTrucks) statTrucks.textContent = trucksSet.size;
+  if (todayDateLabel) todayDateLabel.textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 function renderToday() {
   const todayIso = new Date().toISOString().split('T')[0];
   const todayVisits = allBookings.filter(b => b.visit_date === todayIso);
   const container = document.getElementById('todayTrucks');
+
+  if (!container) return;
 
   if (!todayVisits.length) {
     container.innerHTML = '<div class="today-empty"><div class="today-empty-icon">🚚</div><div class="today-empty-txt">No food trucks scheduled on site today.</div></div>';
@@ -479,6 +477,7 @@ function selectFilter(type, value, label) {
 function populateTruckFilter() {
   const trucks = [...new Set(allBookings.map(b => b.truck_name))].sort();
   const dropdown = document.getElementById('truckDrop');
+  if (!dropdown) return;
   dropdown.innerHTML = '<div class="filter-option selected" onclick="selectFilter(\'truck\', \'all\', \'All Food Trucks\')">All Food Trucks</div>';
   trucks.forEach(t => {
     dropdown.innerHTML += `<div class="filter-option" onclick="selectFilter('truck', '${t}', '${t}')">${t}</div>`;
@@ -487,6 +486,8 @@ function populateTruckFilter() {
 
 function renderGrid() {
   const container = document.getElementById('mainContent');
+  if (!container) return;
+
   const filtered = allBookings.filter(b => {
     const pMatch = filterProp === 'all' || b.property_name === filterProp;
     const tMatch = filterTruck === 'all' || b.truck_name === filterTruck;
@@ -521,17 +522,20 @@ function calNav(dir) {
 function renderCalendar() {
   const y = calDate.getFullYear();
   const m = calDate.getMonth();
-  document.getElementById('calLabel').textContent = new Date(y, m).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const calLabel = document.getElementById('calLabel');
+  if (calLabel) calLabel.textContent = new Date(y, m).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
   const firstDay = new Date(y, m, 1).getDay();
   const daysInMonth = new Date(y, m + 1, 0).getDate();
   const grid = document.getElementById('calGrid');
+  if (!grid) return;
+
   grid.innerHTML = ['S','M','T','W','T','F','S'].map(d => `<div class="cal-day-label">${d}</div>`).join('');
 
   for (let i = 0; i < firstDay; i++) grid.innerHTML += '<div class="cal-day empty"></div>';
 
   const monthIsoPrefix = `${y}-${String(m + 1).padStart(2, '0')}`;
-  const bookedDates = new Set(allBookings.filter(b => b.visit_date.startsWith(monthIsoPrefix)).map(b => b.visit_date));
+  const bookedDates = new Set(allBookings.filter(b => b.visit_date && b.visit_date.startsWith(monthIsoPrefix)).map(b => b.visit_date));
 
   for (let day = 1; day <= daysInMonth; day++) {
     const dayStr = `${monthIsoPrefix}-${String(day).padStart(2, '0')}`;
@@ -544,6 +548,8 @@ function renderUpcoming() {
   const todayIso = new Date().toISOString().split('T')[0];
   const upcoming = allBookings.filter(b => b.visit_date >= todayIso).slice(0, 5);
   const container = document.getElementById('upcomingList');
+
+  if (!container) return;
 
   if (!upcoming.length) {
     container.innerHTML = '<div style="color:var(--muted); font-size:12px; padding:10px 0;">No upcoming visits.</div>';
@@ -592,7 +598,7 @@ async function handleJoinSubmit(e) {
   setTimeout(() => closeModal('joinListModal'), 2000);
 }
 
-loadData();
+document.addEventListener('DOMContentLoaded', loadData);
 </script>
 </body>
 </html>
