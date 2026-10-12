@@ -95,6 +95,37 @@ body.light-mode .logo-badge img{filter:brightness(0);}
 }
 .refresh-btn:hover{color:var(--accent-light);border-color:var(--accent);}
 
+/* ACTION BUTTONS */
+.recommend-btn, .join-list-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: all .2s;
+}
+.recommend-btn {
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #ffffff;
+}
+.recommend-btn:hover {
+  background: var(--accent-light);
+  border-color: var(--accent-light);
+}
+.join-list-btn {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+}
+.join-list-btn:hover {
+  border-color: var(--accent3);
+  color: var(--accent3);
+}
+
 /* HERO */
 .hero{
   background:linear-gradient(135deg,var(--bg) 0%,var(--card) 50%,var(--bg) 100%);
@@ -396,6 +427,55 @@ body.light-mode .lightbox{background:rgba(0,0,0,.92);}
 }
 .lb-btn:hover{border-color:var(--accent-light);background:rgba(42,82,152,.2);color:#fff;}
 
+/* MODAL OVERLAY & CARD */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,.85); backdrop-filter: blur(8px);
+  display: none; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal-card {
+  position: relative; width: min(500px, 100%);
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px 32px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  animation: lbIn .25s ease;
+}
+.modal-close {
+  position: absolute; top: 16px; right: 16px;
+  background: transparent; border: none; color: var(--muted);
+  font-size: 22px; cursor: pointer; transition: color .2s;
+}
+.modal-close:hover { color: var(--accent2); }
+
+/* FORM STYLES */
+.modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; color: var(--text); }
+.modal-sub { font-size: 12px; color: var(--muted); margin-top: 4px; margin-bottom: 20px; }
+.form-group { margin-bottom: 16px; display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text); }
+.form-label .required { color: var(--accent2); }
+.form-label .optional { color: var(--muted); font-size: 10px; font-weight: 400; }
+.form-input {
+  width: 100%; padding: 10px 14px; border-radius: 6px;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px;
+  outline: none; transition: border-color .2s;
+}
+.form-input:focus { border-color: var(--accent-light); }
+.form-submit-btn {
+  width: 100%; padding: 12px; border-radius: 6px; margin-top: 8px;
+  background: var(--accent); border: none; color: #fff;
+  font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px;
+  cursor: pointer; transition: background .2s;
+}
+.form-submit-btn:hover { background: var(--accent-light); }
+.form-success-msg {
+  padding: 14px; border-radius: 6px; background: rgba(62,207,142,0.15);
+  border: 1px solid var(--accent3); color: var(--accent3);
+  font-size: 13px; text-align: center; margin-top: 16px;
+}
+
 /* FOOTER */
 footer{
   background:var(--surface);border-top:1px solid var(--border);
@@ -434,6 +514,8 @@ footer{
     </a>
     <div class="header-right">
       <span class="last-updated" id="lastUpdated"></span>
+      <button class="recommend-btn" onclick="openRecommendModal()">+ Recommend Truck</button>
+      <button class="join-list-btn" onclick="openJoinListModal()">+ Join Schedule List</button>
       <button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">☀️ / 🌙</button>
       <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
     </div>
@@ -528,7 +610,7 @@ footer{
 
   <div class="lightbox" id="lightbox" onclick="closeLb(event)">
     <div class="lb-inner">
-      <button class="lb-close" onclick="closeLb()">×</button>
+      <button class="lb-close" onclick="closeLb()">&times;</button>
       <div class="lb-img-wrap" id="lbImgWrap">
         <img class="lb-img" id="lbImg" src="" alt="" style="display:none"/>
         <div class="lb-no-img" id="lbNoImg" style="display:none">No menu image available yet.</div>
@@ -540,6 +622,93 @@ footer{
       <div class="lb-actions" id="lbActions" style="display:none;">
         <button class="lb-btn" onclick="downloadMenu()">⬇ Download Menu</button>
         <button class="lb-btn" onclick="openMenuFull()">↗ Open Full Size</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECOMMEND A FOOD TRUCK MODAL -->
+  <div class="modal-overlay" id="recommendModal" onclick="closeRecommendModal(event)">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeRecommendModal()">&times;</button>
+      <div class="modal-header">
+        <div class="modal-title">Recommend a Food Truck</div>
+        <p class="modal-sub">Know a great food truck for your property? Let us know below!</p>
+      </div>
+
+      <form id="recommendForm" onsubmit="handleRecommendationSubmit(event)">
+        <div class="form-group">
+          <label for="recName" class="form-label">Your Name <span class="required">*</span></label>
+          <input type="text" id="recName" class="form-input" placeholder="e.g., Jane Doe" required />
+        </div>
+
+        <div class="form-group">
+          <label for="recEmail" class="form-label">Your Email <span class="required">*</span></label>
+          <input type="email" id="recEmail" class="form-input" placeholder="jane@company.com" required />
+        </div>
+
+        <div class="form-group">
+          <label for="recProperty" class="form-label">Your Property <span class="required">*</span></label>
+          <select id="recProperty" class="form-input" required>
+            <option value="" disabled selected>Select your property...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="recTruckName" class="form-label">Food Truck Name <span class="required">*</span></label>
+          <input type="text" id="recTruckName" class="form-input" placeholder="e.g., Tacos El Rey" required />
+        </div>
+
+        <div class="form-group">
+          <label for="recTruckLink" class="form-label">Truck Email, Website, or Social Link <span class="optional">(Optional)</span></label>
+          <input type="text" id="recTruckLink" class="form-input" placeholder="https://instagram.com/tacoselrey or info@tacos.com" />
+        </div>
+
+        <button type="submit" class="form-submit-btn" id="recSubmitBtn">Submit Recommendation</button>
+      </form>
+      
+      <div id="recSuccessMsg" class="form-success-msg" style="display:none;">
+        ✅ Thank you! Your recommendation has been submitted.
+      </div>
+    </div>
+  </div>
+
+  <!-- JOIN FOOD TRUCK LIST MODAL -->
+  <div class="modal-overlay" id="joinListModal" onclick="closeJoinListModal(event)">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeJoinListModal()">&times;</button>
+      <div class="modal-header">
+        <div class="modal-title">Join Schedule List</div>
+        <p class="modal-sub">Get notified when food trucks are scheduled for your property building.</p>
+      </div>
+
+      <form id="joinListForm" onsubmit="handleJoinListSubmit(event)">
+        <div class="form-group">
+          <label for="joinName" class="form-label">Full Name <span class="required">*</span></label>
+          <input type="text" id="joinName" class="form-input" placeholder="e.g., Alex Morgan" required />
+        </div>
+
+        <div class="form-group">
+          <label for="joinEmail" class="form-label">Email Address <span class="required">*</span></label>
+          <input type="email" id="joinEmail" class="form-input" placeholder="alex@company.com" required />
+        </div>
+
+        <div class="form-group">
+          <label for="joinCompany" class="form-label">Company Name <span class="required">*</span></label>
+          <input type="text" id="joinCompany" class="form-input" placeholder="e.g., Acuity Financial" required />
+        </div>
+
+        <div class="form-group">
+          <label for="joinProperty" class="form-label">Property Location <span class="required">*</span></label>
+          <select id="joinProperty" class="form-input" required>
+            <option value="" disabled selected>Select your property...</option>
+          </select>
+        </div>
+
+        <button type="submit" class="form-submit-btn" id="joinSubmitBtn">Join Notification List</button>
+      </form>
+      
+      <div id="joinSuccessMsg" class="form-success-msg" style="display:none;">
+        ✅ You've been added to the schedule notification list!
       </div>
     </div>
   </div>
@@ -559,6 +728,9 @@ const TAB_NAME = 'Sheet1';
 const CUISINE_TAB = 'Sheet2';
 const LOGO_URL = 'https://raw.githubusercontent.com/AlturasCOS/foodtruck-schedule/main/acp.png';
 
+// Replace with your Google Apps Script Web App Deployment URL
+const SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL';
+
 const PROPS = [
   { id:'Northcreek',       color:'#2a5298' },
   { id:'985 Space Center', color:'#1a6b8a' },
@@ -571,6 +743,12 @@ let trucks = [], cuisineMap = {}, filterProp = 'all', filterCuisine = 'all', fil
 
 const now = new Date(); now.setHours(0,0,0,0);
 const todayStr = iso(now);
+
+function escapeHtml(str) {
+  return String(str || '').replace(/[&<>"']/g, m => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[m]);
+}
 
 function renderMaintenance() {
   document.title = 'Scheduled Maintenance | Alturas Capital Partners';
@@ -671,7 +849,7 @@ async function loadData() {
     document.getElementById('errorBanner').classList.remove('show');
     updateStats(); populateFilters(); renderTodayPanel(); renderCalendar(); renderUpcoming(); renderMain();
   } catch(err) {
-    document.getElementById('errorBanner').innerHTML=`Could not load schedule. <code>${err.message}</code>`;
+    document.getElementById('errorBanner').innerHTML=`Could not load schedule. <code>${escapeHtml(err.message)}</code>`;
     document.getElementById('errorBanner').classList.add('show');
     document.getElementById('mainContent').innerHTML='<div class="empty-section"><div class="ei">⚠️</div><div class="em">Schedule unavailable</div></div>';
     document.getElementById('todayTrucks').innerHTML='<div class="today-empty"><div class="today-empty-txt">Could not load</div></div>';
@@ -679,24 +857,24 @@ async function loadData() {
 }
 
 function populateFilters(){
-  // Properties
   const propDrop = document.getElementById('propDrop');
+  propDrop.innerHTML = `<div class="filter-option ${filterProp==='all'?'selected':''}" data-value="all" onclick="selectFilter('prop', 'all', 'All Properties')">All Properties</div>`;
   PROPS.forEach(p => {
-    propDrop.insertAdjacentHTML('beforeend', `<div class="filter-option" data-value="${p.id}" onclick="selectFilter('prop', '${p.id}', '${p.id}')">${p.id}</div>`);
+    propDrop.insertAdjacentHTML('beforeend', `<div class="filter-option ${filterProp===p.id?'selected':''}" data-value="${escapeHtml(p.id)}" onclick="selectFilter('prop', '${escapeHtml(p.id)}', '${escapeHtml(p.id)}')">${escapeHtml(p.id)}</div>`);
   });
 
-  // Cuisines
   const cuisines = [...new Set(trucks.map(t => cuisineMap[t.name]).filter(Boolean))].sort();
   const cuisineDrop = document.getElementById('cuisineDrop');
+  cuisineDrop.innerHTML = `<div class="filter-option ${filterCuisine==='all'?'selected':''}" data-value="all" onclick="selectFilter('cuisine', 'all', 'All Cuisines')">All Cuisines</div>`;
   cuisines.forEach(c => {
-    cuisineDrop.insertAdjacentHTML('beforeend', `<div class="filter-option" data-value="${c}" onclick="selectFilter('cuisine', '${c}', '${c}')">${c}</div>`);
+    cuisineDrop.insertAdjacentHTML('beforeend', `<div class="filter-option ${filterCuisine===c?'selected':''}" data-value="${escapeHtml(c)}" onclick="selectFilter('cuisine', '${escapeHtml(c)}', '${escapeHtml(c)}')">${escapeHtml(c)}</div>`);
   });
 
-  // Trucks
   const truckNames = [...new Set(trucks.map(t => t.name))].sort();
   const truckDrop = document.getElementById('truckDrop');
+  truckDrop.innerHTML = `<div class="filter-option ${filterTruck==='all'?'selected':''}" data-value="all" onclick="selectFilter('truck', 'all', 'All Food Trucks')">All Food Trucks</div>`;
   truckNames.forEach(name => {
-    truckDrop.insertAdjacentHTML('beforeend', `<div class="filter-option" data-value="${name}" onclick="selectFilter('truck', '${name}', '${name}')">${name}</div>`);
+    truckDrop.insertAdjacentHTML('beforeend', `<div class="filter-option ${filterTruck===name?'selected':''}" data-value="${escapeHtml(name)}" onclick="selectFilter('truck', '${escapeHtml(name)}', '${escapeHtml(name)}')">${escapeHtml(name)}</div>`);
   });
 }
 
@@ -757,9 +935,9 @@ function renderTodayPanel(){
     return `<div class="today-truck-item" onclick="openLb(${t.id})">
       <div class="today-truck-icon">🚚</div>
       <div>
-        <div class="today-truck-name">${t.name} is on site today!</div>
-        <div class="today-truck-meta">${t.time}</div>
-        <div class="today-truck-prop" style="color:${col}">${t.property}</div>
+        <div class="today-truck-name">${escapeHtml(t.name)} is on site today!</div>
+        <div class="today-truck-meta">${escapeHtml(t.time)}</div>
+        <div class="today-truck-prop" style="color:${col}">${escapeHtml(t.property)}</div>
       </div>
     </div>`;
   }).join('');
@@ -797,7 +975,7 @@ function renderCalendar(){
   PROPS.forEach(p=>{
     const n=trucks.filter(t=>t.property===p.id&&t.date>=todayStr).length;
     leg.insertAdjacentHTML('beforeend',
-      `<div class="legend-item"><div class="legend-dot" style="background:${p.color}"></div>${p.id}<span class="legend-count">${n}</span></div>`);
+      `<div class="legend-item"><div class="legend-dot" style="background:${p.color}"></div>${escapeHtml(p.id)}<span class="legend-count">${n}</span></div>`);
   });
 }
 
@@ -826,8 +1004,8 @@ function renderUpcoming(){
         <div class="umon">${dt.toLocaleString('default',{month:'short'})}</div>
       </div>
       <div>
-        <div class="upcoming-name">${t.name}</div>
-        <div class="upcoming-prop">${t.property} · ${t.time}</div>
+        <div class="upcoming-name">${escapeHtml(t.name)}</div>
+        <div class="upcoming-prop">${escapeHtml(t.property)} · ${escapeHtml(t.time)}</div>
       </div>
     </div>`;
   }).join('');
@@ -837,7 +1015,7 @@ function renderMain(){
   const {start:wS,end:wE}=getWeekBounds();
   let filtered=trucks.filter(t=>matchFilters(t));
   
-  const label=filterProp==='all'?'All <span style="color:var(--accent-light)">Visits</span>':`<span style="color:var(--accent-light)">${filterProp}</span>`;
+  const label=filterProp==='all'?'All <span style="color:var(--accent-light)">Visits</span>':`<span style="color:var(--accent-light)">${escapeHtml(filterProp)}</span>`;
   const wEndDt=new Date(wE+'T00:00:00');
 
   let html=`<div class="content-main-title">${label}</div>`;
@@ -848,7 +1026,7 @@ function renderMain(){
     const dateStr=dt.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
     
     html+=`<div style="margin-bottom:18px;padding:12px 16px;background:rgba(42,82,152,0.1);border:1px solid rgba(42,82,152,0.3);border-radius:8px;display:flex;align-items:center;gap:12px;">
-      <span style="font-size:13px;color:var(--accent-light);">Showing visits for: <strong>${dateStr}</strong></span>
+      <span style="font-size:13px;color:var(--accent-light);">Showing visits for: <strong>${escapeHtml(dateStr)}</strong></span>
       <button onclick="clearDateFilter()" style="margin-left:auto;padding:6px 14px;background:transparent;border:1px solid rgba(42,82,152,0.4);border-radius:6px;color:var(--accent-light);font-size:11px;font-weight:600;cursor:pointer;letter-spacing:1px;text-transform:uppercase;">Clear Filter</button>
     </div>`;
     
@@ -867,7 +1045,7 @@ function renderMain(){
     
     html+=`<div class="section-head">
       <span class="section-badge ${badgeClass}">${badgeLabel}</span>
-      <span class="section-title">${dateStr}</span>
+      <span class="section-title">${escapeHtml(dateStr)}</span>
       <span class="section-count">${dateFiltered.length} visit${dateFiltered.length!==1?'s':''}</span>
     </div>`;
     
@@ -925,7 +1103,7 @@ function cardHtml(t,isToday,isPast){
   const col=getPropColor(t.property),src=driveUrl((t.menus && t.menus[0]) || t.menu);
   return `<div class="truck-card${isToday?' today-card':''}${isPast?' past-card':''}" onclick="openLb(${t.id})">
     <div class="menu-img-wrap">
-      <div class="prop-ribbon" style="color:${col}">${t.property}</div>
+      <div class="prop-ribbon" style="color:${col}">${escapeHtml(t.property)}</div>
       ${isToday?'<div class="today-pill">Today</div>':''}
       ${src
         ?`<img src="${src}" alt="Menu" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
@@ -936,11 +1114,11 @@ function cardHtml(t,isToday,isPast){
     </div>
     <div class="card-body">
       <div class="card-day-tag" style="color:${isToday?'var(--accent-light)':isPast?'var(--muted)':'var(--accent3)'}">${isToday?'ON SITE TODAY':fmtDay(t.date).toUpperCase()}</div>
-      <div class="card-name">${t.name}</div>
+      <div class="card-name">${escapeHtml(t.name)}</div>
       <div class="card-divider"></div>
-      <div class="card-property">${t.property}</div>
+      <div class="card-property">${escapeHtml(t.property)}</div>
       <div class="card-date">— ${fmtDate(t.date)}</div>
-      <div class="card-time">${t.time}</div>
+      <div class="card-time">${escapeHtml(t.time)}</div>
     </div>
   </div>`;
 }
@@ -1015,7 +1193,144 @@ function closeLb(e){
     currentMenuUrls=[];
   }
 }
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLb();});
+
+/* MODAL HELPER FUNCTIONS */
+function populateModalSelect(selectId) {
+  const select = document.getElementById(selectId);
+  if (!select || select.children.length > 1) return;
+  PROPS.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.id;
+    select.appendChild(opt);
+  });
+}
+
+/* RECOMMEND MODAL */
+function openRecommendModal() {
+  populateModalSelect('recProperty');
+  document.getElementById('recommendModal').classList.add('open');
+}
+
+function closeRecommendModal(e) {
+  if (!e || e.target === document.getElementById('recommendModal') || e.target.classList.contains('modal-close')) {
+    document.getElementById('recommendModal').classList.remove('open');
+    document.getElementById('recommendForm').reset();
+    document.getElementById('recSuccessMsg').style.display = 'none';
+    document.getElementById('recommendForm').style.display = 'block';
+  }
+}
+
+async function handleRecommendationSubmit(e) {
+  e.preventDefault();
+  
+  const submitBtn = document.getElementById('recSubmitBtn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting...';
+
+  const payload = {
+    action: 'Recommend Truck',
+    userName: document.getElementById('recName').value,
+    userEmail: document.getElementById('recEmail').value,
+    property: document.getElementById('recProperty').value,
+    truckName: document.getElementById('recTruckName').value,
+    truckLink: document.getElementById('recTruckLink').value || 'N/A'
+  };
+
+  try {
+    if (SCRIPT_URL && SCRIPT_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } else {
+      console.log('Recommendation payload (Dev Mode):', payload);
+    }
+
+    document.getElementById('recommendForm').style.display = 'none';
+    document.getElementById('recSuccessMsg').style.display = 'block';
+
+    setTimeout(() => {
+      closeRecommendModal();
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Recommendation';
+    }, 2500);
+
+  } catch (err) {
+    alert('Submission failed. Please try again.');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit Recommendation';
+  }
+}
+
+/* JOIN LIST MODAL */
+function openJoinListModal() {
+  populateModalSelect('joinProperty');
+  document.getElementById('joinListModal').classList.add('open');
+}
+
+function closeJoinListModal(e) {
+  if (!e || e.target === document.getElementById('joinListModal') || e.target.classList.contains('modal-close')) {
+    document.getElementById('joinListModal').classList.remove('open');
+    document.getElementById('joinListForm').reset();
+    document.getElementById('joinSuccessMsg').style.display = 'none';
+    document.getElementById('joinListForm').style.display = 'block';
+  }
+}
+
+async function handleJoinListSubmit(e) {
+  e.preventDefault();
+
+  const submitBtn = document.getElementById('joinSubmitBtn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Joining...';
+
+  const payload = {
+    action: 'Join Notification List',
+    userName: document.getElementById('joinName').value,
+    userEmail: document.getElementById('joinEmail').value,
+    company: document.getElementById('joinCompany').value,
+    property: document.getElementById('joinProperty').value
+  };
+
+  try {
+    if (SCRIPT_URL && SCRIPT_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } else {
+      console.log('Join List payload (Dev Mode):', payload);
+    }
+
+    document.getElementById('joinListForm').style.display = 'none';
+    document.getElementById('joinSuccessMsg').style.display = 'block';
+
+    setTimeout(() => {
+      closeJoinListModal();
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Join Notification List';
+    }, 2500);
+
+  } catch (err) {
+    alert('Submission failed. Please try again.');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Join Notification List';
+  }
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') {
+    closeLb();
+    closeRecommendModal();
+    closeJoinListModal();
+  }
+});
+
 document.addEventListener('click', e => {
   if(!e.target.closest('.filter-group')) {
     document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('open'));
