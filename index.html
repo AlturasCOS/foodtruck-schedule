@@ -372,19 +372,12 @@ body.light-mode .zoom-hint{background:rgba(0,0,0,.5);}
 }
 body.light-mode .lightbox{background:rgba(0,0,0,.92);}
 .lightbox.open{display:flex;}
-.lb-inner{position:relative;max-width:560px;width:100%;max-height:90vh;display:flex;flex-direction:column;animation:lbIn .25s ease;}
+.lb-inner{position:relative;max-width:680px;width:100%;max-height:90vh;display:flex;flex-direction:column;animation:lbIn .25s ease;}
 @keyframes lbIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
-.lb-img-wrap{overflow-y:auto;border-radius:8px;border:1px solid var(--border);flex:1;max-height:70vh;}
+.lb-img-wrap{overflow-y:auto;border-radius:8px;border:1px solid var(--border);flex:1;min-height:450px;max-height:70vh;background:#0d0d1a;}
 .lb-img{width:100%;display:block;}
+.lb-iframe{width:100%;height:100%;min-height:500px;border:none;border-radius:8px;}
 .lb-no-img{padding:60px;text-align:center;color:var(--muted);font-size:14px;}
-.lb-pdf-btn{
-  display:block;width:100%;padding:20px;
-  background:linear-gradient(135deg,var(--accent),#1a4a6b);
-  color:#fff;text-align:center;font-family:'Bebas Neue',sans-serif;
-  font-size:20px;letter-spacing:2px;border-radius:8px;
-  text-decoration:none;transition:all .2s;
-}
-.lb-pdf-btn:hover{transform:scale(1.02);}
 .lb-close{
   position:absolute;top:-12px;right:-12px;background:var(--accent2);
   color:#fff;border:none;width:28px;height:28px;border-radius:50%;
@@ -578,16 +571,13 @@ footer{
   <div class="lightbox" id="lightbox" onclick="closeLb(event)">
     <div class="lb-inner">
       <button class="lb-close" onclick="closeLb()">&times;</button>
-      <div class="lb-img-wrap" id="lbImgWrap">
-        <img class="lb-img" id="lbImg" src="" alt="" style="display:none"/>
-        <div class="lb-no-img" id="lbNoImg" style="display:none">No menu image available yet.</div>
-      </div>
+      <div class="lb-img-wrap" id="lbImgWrap"></div>
       <div class="lb-info">
         <div><div class="lb-name" id="lbName"></div><div class="lb-prop" id="lbProp"></div></div>
         <div class="lb-date" id="lbDate"></div>
       </div>
       <div class="lb-actions" id="lbActions" style="display:none;">
-        <button class="lb-btn" onclick="downloadMenu()">⬇ Download Menu</button>
+        <button class="lb-btn" onclick="downloadMenu()">⬇ View / Download Menu</button>
         <button class="lb-btn" onclick="openMenuFull()">↗ Open Full Size</button>
       </div>
     </div>
@@ -708,4 +698,487 @@ function escapeHtml(str) {
 
 function getWeekBounds() {
   const d = new Date(now), day = d.getDay();
-  const
+  const mon = new Date(d); mon.setDate(d.getDate() - (day===0?6:day-1));
+  const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+  return { start:iso(mon), end:iso(sun) };
+}
+
+function toggleTheme(){
+  document.body.classList.toggle('light-mode');
+  localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+}
+
+function toggleDropdown(id){
+  const drop = document.getElementById(id);
+  document.querySelectorAll('.filter-dropdown').forEach(d => {
+    if(d.id !== id) d.classList.remove('open');
+  });
+  drop.classList.toggle('open');
+}
+
+function selectFilter(type, value, label){
+  if(type === 'prop') {
+    filterProp = value;
+    document.getElementById('propLabel').textContent = label;
+    document.querySelectorAll('#propDrop .filter-option').forEach(o => o.classList.toggle('selected', o.dataset.value === value));
+  } else if(type === 'truck') {
+    filterTruck = value;
+    document.getElementById('truckLabel').textContent = label;
+    document.querySelectorAll('#truckDrop .filter-option').forEach(o => o.classList.toggle('selected', o.dataset.value === value));
+  }
+  document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('open'));
+  renderTodayPanel(); renderCalendar(); renderUpcoming(); renderMain();
+}
+
+(function boot() {
+  if(localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
+  calYear=now.getFullYear(); calMonth=now.getMonth();
+  document.getElementById('todayDateLabel').textContent =
+    now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  loadData();
+})();
+
+async function loadData() {
+  try {
+    const { data, error } = await sb
+      .from('bookings')
+      .select('*')
+      .order('visit_date', { ascending: true });
+
+    if (error) throw error;
+
+    trucks = data.map(r => ({
+      id: r.id,
+      name: r.truck_name || 'Food Truck',
+      property: r.property_name || '',
+      date: r.visit_date || '',
+      time: r.time_slot || 'TBD',
+      menu: r.menu_url || '',
+      menus: r.menu_url ? [r.menu_url] : []
+    }));
+
+    document.getElementById('lastUpdated').textContent =
+      `Updated ${new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`;
+    document.getElementById('errorBanner').classList.remove('show');
+    updateStats(); populateFilters(); renderTodayPanel(); renderCalendar(); renderUpcoming(); renderMain();
+  } catch(err) {
+    console.error('Error fetching data from Supabase:', err);
+    document.getElementById('errorBanner').innerHTML=`Could not load schedule from Supabase. <code>${escapeHtml(err.message)}</code>`;
+    document.getElementById('errorBanner').classList.add('show');
+    document.getElementById('mainContent').innerHTML='<div class="empty-section"><div class="ei">⚠️</div><div class="em">Schedule unavailable</div></div>';
+    document.getElementById('todayTrucks').innerHTML='<div class="today-empty"><div class="today-empty-txt">Could not load</div></div>';
+  }
+}
+
+function populateFilters(){
+  const propDrop = document.getElementById('propDrop');
+  propDrop.innerHTML = `<div class="filter-option ${filterProp==='all'?'selected':''}" data-value="all" onclick="selectFilter('prop', 'all', 'All Properties')">All Properties</div>`;
+  PROPS.forEach(p => {
+    propDrop.insertAdjacentHTML('beforeend', `<div class="filter-option ${filterProp===p.id?'selected':''}" data-value="${escapeHtml(p.id)}" onclick="selectFilter('prop', '${escapeHtml(p.id)}', '${escapeHtml(p.id)}')">${escapeHtml(p.id)}</div>`);
+  });
+
+  const truckNames = [...new Set(trucks.map(t => t.name))].sort();
+  const truckDrop = document.getElementById('truckDrop');
+  truckDrop.innerHTML = `<div class="filter-option ${filterTruck==='all'?'selected':''}" data-value="all" onclick="selectFilter('truck', 'all', 'All Food Trucks')">All Food Trucks</div>`;
+  truckNames.forEach(name => {
+    truckDrop.insertAdjacentHTML('beforeend', `<div class="filter-option ${filterTruck===name?'selected':''}" data-value="${escapeHtml(name)}" onclick="selectFilter('truck', '${escapeHtml(name)}', '${escapeHtml(name)}')">${escapeHtml(name)}</div>`);
+  });
+}
+
+function iso(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function getPropColor(name){return PROPS.find(p=>p.id===name)?.color||'#2a5298';}
+function matchFilters(t){
+  const propMatch = filterProp==='all'||t.property===filterProp;
+  const truckMatch = filterTruck==='all'||t.name===filterTruck;
+  return propMatch && truckMatch;
+}
+function fmtDate(ds){return new Date(ds+'T00:00:00').toLocaleDateString('en-US',{weekday:'short',month:'long',day:'numeric',year:'numeric'});}
+function fmtDay(ds){return new Date(ds+'T00:00:00').toLocaleDateString('en-US',{weekday:'long'});}
+
+function renderTodayPanel(){
+  const list=trucks.filter(t=>t.date===todayStr&&matchFilters(t));
+  const el=document.getElementById('todayTrucks');
+  if(!list.length){
+    el.innerHTML=`<div class="today-empty"><div class="today-empty-icon">🚚</div><div class="today-empty-txt">No food trucks on site today</div></div>`;
+    return;
+  }
+  el.innerHTML=list.map(t=>{
+    const col=getPropColor(t.property);
+    return `<div class="today-truck-item" onclick="openLb(${t.id})">
+      <div class="today-truck-icon">🚚</div>
+      <div>
+        <div class="today-truck-name">${escapeHtml(t.name)} is on site today!</div>
+        <div class="today-truck-meta">${escapeHtml(t.time)}</div>
+        <div class="today-truck-prop" style="color:${col}">${escapeHtml(t.property)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateStats(){
+  const up=trucks.filter(t=>t.date>=todayStr);
+  document.getElementById('statVisits').textContent=up.length;
+  document.getElementById('statTrucks').textContent=new Set(trucks.map(t=>t.name)).size;
+}
+
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS=['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+function renderCalendar(){
+  document.getElementById('calLabel').textContent=`${MONTHS[calMonth]} ${calYear}`;
+  const grid=document.getElementById('calGrid');
+  grid.innerHTML=DAYS.map(d=>`<div class="cal-day-label">${d}</div>`).join('');
+  const {start:wS,end:wE}=getWeekBounds();
+  const first=new Date(calYear,calMonth,1).getDay();
+  const total=new Date(calYear,calMonth+1,0).getDate();
+  for(let i=0;i<first;i++) grid.insertAdjacentHTML('beforeend','<div class="cal-day empty"></div>');
+  for(let d=1;d<=total;d++){
+    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const evts=trucks.filter(t=>t.date===ds&&matchFilters(t));
+    let cls='cal-day';
+    if(ds===todayStr) cls+=' today';
+    if(evts.length)   cls+=' has-event';
+    if(ds>=wS&&ds<=wE) cls+=' in-week';
+    if(ds===filterDate) cls+=' selected';
+    grid.insertAdjacentHTML('beforeend',`<div class="${cls}" onclick="selectDate('${ds}')">${d}</div>`);
+  }
+  const leg=document.getElementById('legend');
+  leg.innerHTML='';
+  PROPS.forEach(p=>{
+    const n=trucks.filter(t=>t.property===p.id&&t.date>=todayStr).length;
+    leg.insertAdjacentHTML('beforeend',
+      `<div class="legend-item"><div class="legend-dot" style="background:${p.color}"></div>${escapeHtml(p.id)}<span class="legend-count">${n}</span></div>`);
+  });
+}
+
+function selectDate(ds){
+  filterDate = filterDate===ds ? null : ds;
+  renderCalendar(); renderMain();
+  document.getElementById('mainContent').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function calNav(dir){
+  calMonth+=dir;
+  if(calMonth>11){calMonth=0;calYear++;}
+  if(calMonth<0){calMonth=11;calYear--;}
+  renderCalendar();
+}
+
+function renderUpcoming(){
+  const list=document.getElementById('upcomingList');
+  const items=trucks.filter(t=>t.date>=todayStr&&matchFilters(t)).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,6);
+  if(!items.length){list.innerHTML='<div style="padding:0 22px 10px;font-size:11px;color:var(--muted)">No upcoming visits.</div>';return;}
+  list.innerHTML=items.map(t=>{
+    const dt=new Date(t.date+'T00:00:00'),col=getPropColor(t.property);
+    return `<div class="upcoming-item" onclick="openLb(${t.id})">
+      <div class="upcoming-badge" style="background:${col}">
+        <div class="uday">${dt.getDate()}</div>
+        <div class="umon">${dt.toLocaleString('default',{month:'short'})}</div>
+      </div>
+      <div>
+        <div class="upcoming-name">${escapeHtml(t.name)}</div>
+        <div class="upcoming-prop">${escapeHtml(t.property)} · ${escapeHtml(t.time)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderMain(){
+  const {start:wS,end:wE}=getWeekBounds();
+  let filtered=trucks.filter(t=>matchFilters(t));
+  
+  const label=filterProp==='all'?'All <span style="color:var(--accent-light)">Visits</span>':`<span style="color:var(--accent-light)">${escapeHtml(filterProp)}</span>`;
+  const wEndDt=new Date(wE+'T00:00:00');
+
+  let html=`<div class="content-main-title">${label}</div>`;
+
+  if(filterDate){
+    const dateFiltered = filtered.filter(t=>t.date===filterDate);
+    const dt=new Date(filterDate+'T00:00:00');
+    const dateStr=dt.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+    
+    html+=`<div style="margin-bottom:18px;padding:12px 16px;background:rgba(42,82,152,0.1);border:1px solid rgba(42,82,152,0.3);border-radius:8px;display:flex;align-items:center;gap:12px;">
+      <span style="font-size:13px;color:var(--accent-light);">Showing visits for: <strong>${escapeHtml(dateStr)}</strong></span>
+      <button onclick="clearDateFilter()" style="margin-left:auto;padding:6px 14px;background:transparent;border:1px solid rgba(42,82,152,0.4);border-radius:6px;color:var(--accent-light);font-size:11px;font-weight:600;cursor:pointer;letter-spacing:1px;text-transform:uppercase;">Clear Filter</button>
+    </div>`;
+    
+    let badgeClass = 'badge-week';
+    let badgeLabel = 'Selected Date';
+    if(filterDate === todayStr){
+      badgeClass = 'badge-week';
+      badgeLabel = 'Today';
+    } else if(filterDate < todayStr){
+      badgeClass = 'badge-past';
+      badgeLabel = 'Past Visit';
+    } else if(filterDate > wE){
+      badgeClass = 'badge-future';
+      badgeLabel = 'Upcoming';
+    }
+    
+    html+=`<div class="section-head">
+      <span class="section-badge ${badgeClass}">${badgeLabel}</span>
+      <span class="section-title">${escapeHtml(dateStr)}</span>
+      <span class="section-count">${dateFiltered.length} visit${dateFiltered.length!==1?'s':''}</span>
+    </div>`;
+    
+    if(dateFiltered.length){
+      html+=`<div class="trucks-grid">${dateFiltered.map(t=>cardHtml(t,t.date===todayStr,t.date<todayStr)).join('')}</div>`;
+    } else {
+      html+=`<div class="empty-section"><div class="ei">🚚</div><div class="em">No truck visits on this date</div></div>`;
+    }
+    
+    document.getElementById('mainContent').innerHTML=html;
+    return;
+  }
+
+  const thisWeek=filtered.filter(t=>t.date>=wS&&t.date<=wE).sort((a,b)=>a.date.localeCompare(b.date));
+  const future  =filtered.filter(t=>t.date>wE).sort((a,b)=>a.date.localeCompare(b.date));
+  const past    =filtered.filter(t=>t.date<wS).sort((a,b)=>b.date.localeCompare(a.date));
+
+  html+=`<div class="section-head">
+    <span class="section-badge badge-week">This Week</span>
+    <span class="section-title">${MONTHS[now.getMonth()]} ${now.getDate()} – ${wEndDt.toLocaleDateString('en-US',{month:'long',day:'numeric'})}</span>
+    <span class="section-count">${thisWeek.length} visit${thisWeek.length!==1?'s':''}</span>
+  </div>`;
+  html+=thisWeek.length
+    ?`<div class="trucks-grid">${thisWeek.map(t=>cardHtml(t,t.date===todayStr,false)).join('')}</div>`
+    :`<div class="empty-section"><div class="ei">🚚</div><div class="em">No truck visits this week</div></div>`;
+
+  html+=`<div class="section-head">
+    <span class="section-badge badge-future">Upcoming</span>
+    <span class="section-title">Future Visits</span>
+    <span class="section-count">${future.length} visit${future.length!==1?'s':''}</span>
+  </div>`;
+  html+=future.length
+    ?`<div class="trucks-grid">${future.map(t=>cardHtml(t,false,false)).join('')}</div>`
+    :`<div class="empty-section"><div class="ei">📅</div><div class="em">No future visits scheduled yet</div></div>`;
+
+  html+=`<button class="past-toggle" id="pastToggle" onclick="togglePast()">
+    <span class="section-badge badge-past">Past Visits</span>
+    <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--muted);">Previous Food Truck Visits</span>
+    <span style="font-size:11px;color:var(--muted);">${past.length} visit${past.length!==1?'s':''}</span>
+    <span class="past-arrow">▼</span>
+  </button>
+  <div class="past-content" id="pastContent">
+    <div class="trucks-grid">${past.map(t=>cardHtml(t,false,true)).join('')}</div>
+  </div>`;
+
+  document.getElementById('mainContent').innerHTML=html;
+}
+
+function clearDateFilter(){
+  filterDate=null;
+  renderCalendar(); renderMain();
+}
+
+function cardHtml(t,isToday,isPast){
+  const col=getPropColor(t.property), src=t.menu;
+  const isPdf = src.toLowerCase().includes('.pdf');
+
+  return `<div class="truck-card${isToday?' today-card':''}${isPast?' past-card':''}" onclick="openLb(${t.id})">
+    <div class="menu-img-wrap">
+      <div class="prop-ribbon" style="color:${col}">${escapeHtml(t.property)}</div>
+      ${isToday?'<div class="today-pill">Today</div>':''}
+      ${src
+        ? (isPdf 
+            ? `<div class="menu-placeholder"><div class="ph-icon">📄</div><div class="ph-text">PDF Menu Attached</div></div>`
+            : `<img src="${src}" alt="Menu" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+               <div class="menu-placeholder" style="display:none"><div class="ph-icon">🍽</div><div class="ph-text">Image Unavailable</div></div>`)
+        :`<div class="menu-placeholder"><div class="ph-icon">🍽</div><div class="ph-text">Menu Coming Soon</div></div>`
+      }
+      <div class="zoom-hint">⊕</div>
+    </div>
+    <div class="card-body">
+      <div class="card-day-tag" style="color:${isToday?'var(--accent-light)':isPast?'var(--muted)':'var(--accent3)'}">${isToday?'ON SITE TODAY':fmtDay(t.date).toUpperCase()}</div>
+      <div class="card-name">${escapeHtml(t.name)}</div>
+      <div class="card-divider"></div>
+      <div class="card-property">${escapeHtml(t.property)}</div>
+      <div class="card-date">— ${fmtDate(t.date)}</div>
+      <div class="card-time">${escapeHtml(t.time)}</div>
+    </div>
+  </div>`;
+}
+
+function togglePast(){
+  document.getElementById('pastToggle').classList.toggle('open');
+  document.getElementById('pastContent').classList.toggle('open');
+}
+
+let currentMenuUrls = [];
+
+function openLb(id){
+  const t=trucks.find(x=>x.id===id); if(!t) return;
+  const dt=new Date(t.date+'T00:00:00');
+  
+  document.getElementById('lbName').textContent=t.name;
+  document.getElementById('lbProp').textContent=t.property;
+  document.getElementById('lbDate').textContent=`${dt.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})} · ${t.time}`;
+  
+  const wrap=document.getElementById('lbImgWrap');
+  const actions=document.getElementById('lbActions');
+  
+  currentMenuUrls = t.menu ? [t.menu] : [];
+  
+  if(!currentMenuUrls.length){
+    wrap.innerHTML='<div class="lb-no-img">No menu image available yet.</div>';
+    actions.style.display='none';
+    document.getElementById('lightbox').classList.add('open');
+    return;
+  }
+  
+  const firstUrl = currentMenuUrls[0];
+  
+  if(firstUrl.toLowerCase().includes('.pdf')){
+    // Embed PDF directly inside the iframe modal
+    wrap.innerHTML=`<iframe src="${firstUrl}" class="lb-iframe" title="PDF Menu"></iframe>`;
+    actions.style.display='flex';
+  } else {
+    wrap.innerHTML = `<img src="${firstUrl}" alt="Menu" style="width:100%;display:block;" onerror="this.style.display='none'"/>`;
+    actions.style.display='flex';
+  }
+  
+  document.getElementById('lightbox').classList.add('open');
+}
+
+function downloadMenu(){
+  if(!currentMenuUrls.length) return;
+  window.open(currentMenuUrls[0], '_blank');
+}
+
+function openMenuFull(){
+  if(!currentMenuUrls.length) return;
+  window.open(currentMenuUrls[0], '_blank');
+}
+
+function closeLb(e){
+  if(!e||e.target===document.getElementById('lightbox')||e.target.classList.contains('lb-close')){
+    document.getElementById('lightbox').classList.remove('open');
+    currentMenuUrls=[];
+  }
+}
+
+/* MODAL HELPER FUNCTIONS */
+function populateModalSelect(selectId) {
+  const select = document.getElementById(selectId);
+  if (!select || select.children.length > 1) return;
+  PROPS.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.id;
+    select.appendChild(opt);
+  });
+}
+
+/* RECOMMEND MODAL */
+function openRecommendModal() {
+  populateModalSelect('recProperty');
+  document.getElementById('recommendModal').classList.add('open');
+}
+
+function closeRecommendModal(e) {
+  if (!e || e.target === document.getElementById('recommendModal') || e.target.classList.contains('modal-close')) {
+    document.getElementById('recommendModal').classList.remove('open');
+    document.getElementById('recommendForm').reset();
+    document.getElementById('recSuccessMsg').style.display = 'none';
+    document.getElementById('recommendForm').style.display = 'block';
+  }
+}
+
+async function handleRecommendationSubmit(e) {
+  e.preventDefault();
+  
+  const submitBtn = document.getElementById('recSubmitBtn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting...';
+
+  try {
+    const { error } = await sb.from('recommendations').insert([{
+      user_name: document.getElementById('recName').value,
+      user_email: document.getElementById('recEmail').value,
+      property_name: document.getElementById('recProperty').value,
+      truck_name: document.getElementById('recTruckName').value,
+      truck_link: document.getElementById('recTruckLink').value || 'N/A'
+    }]);
+
+    if(error) throw error;
+
+    document.getElementById('recommendForm').style.display = 'none';
+    document.getElementById('recSuccessMsg').style.display = 'block';
+
+    setTimeout(() => {
+      closeRecommendModal();
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Recommendation';
+    }, 2500);
+
+  } catch (err) {
+    alert('Submission failed: ' + err.message);
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit Recommendation';
+  }
+}
+
+/* JOIN LIST MODAL */
+function openJoinListModal() {
+  populateModalSelect('joinProperty');
+  document.getElementById('joinListModal').classList.add('open');
+}
+
+function closeJoinListModal(e) {
+  if (!e || e.target === document.getElementById('joinListModal') || e.target.classList.contains('modal-close')) {
+    document.getElementById('joinListModal').classList.remove('open');
+    document.getElementById('joinListForm').reset();
+    document.getElementById('joinSuccessMsg').style.display = 'none';
+    document.getElementById('joinListForm').style.display = 'block';
+  }
+}
+
+async function handleJoinListSubmit(e) {
+  e.preventDefault();
+
+  const submitBtn = document.getElementById('joinSubmitBtn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Joining...';
+
+  try {
+    const { error } = await sb.from('notifications').insert([{
+      full_name: document.getElementById('joinName').value,
+      email: document.getElementById('joinEmail').value,
+      company: document.getElementById('joinCompany').value,
+      property_name: document.getElementById('joinProperty').value
+    }]);
+
+    if(error) throw error;
+
+    document.getElementById('joinListForm').style.display = 'none';
+    document.getElementById('joinSuccessMsg').style.display = 'block';
+
+    setTimeout(() => {
+      closeJoinListModal();
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Join Notification List';
+    }, 2500);
+
+  } catch (err) {
+    alert('Submission failed: ' + err.message);
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Join Notification List';
+  }
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') {
+    closeLb();
+    closeRecommendModal();
+    closeJoinListModal();
+  }
+});
+
+document.addEventListener('click', e => {
+  if(!e.target.closest('.filter-group')) {
+    document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('open'));
+  }
+});
+</script>
+</body>
+</html>
