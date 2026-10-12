@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Food Truck Schedule — Alturas Capital Partners</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <!-- Supabase Client SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -35,438 +35,216 @@ body.light-mode {
   --border: #e5e7eb;
 }
 
-*{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;transition:background-color .3s, color .3s;}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-weight:300; min-height:100vh; overflow-x:hidden; transition:background-color .3s, color .3s; }
 
-body::before{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:999;
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:999;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
   opacity:0.35;
 }
 
 /* HEADER */
-header{
-  background:var(--surface);border-bottom:2px solid var(--border);
-  padding:0 28px;position:sticky;top:0;z-index:200;
-  display:flex;align-items:center;justify-content:space-between;height:68px;
+header {
+  background:var(--surface); border-bottom:2px solid var(--border);
+  padding:0 28px; position:sticky; top:0; z-index:200;
+  display:flex; align-items:center; justify-content:space-between; height:68px;
 }
-.logo{display:flex;align-items:center;gap:14px;text-decoration:none;}
-.logo-badge{width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
-.logo-badge img{width:100%;height:100%;object-fit:contain;filter:brightness(1);}
-body.light-mode .logo-badge img{filter:brightness(0);}
-.logo-main{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--text);line-height:1;}
-.logo-sub{font-size:9px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:2px;}
-.header-right{display:flex;align-items:center;gap:10px;}
-.last-updated{font-size:10px;color:var(--muted);letter-spacing:1px;}
-.theme-toggle{
-  padding:8px 12px;border-radius:6px;font-family:'DM Sans',sans-serif;
-  font-size:14px;cursor:pointer;border:1px solid var(--border);
-  background:transparent;color:var(--text);transition:all .2s;
+.logo { display:flex; align-items:center; gap:14px; text-decoration:none; }
+.logo-badge { width:44px; height:44px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.logo-badge img { width:100%; height:100%; object-fit:contain; filter:brightness(1); }
+body.light-mode .logo-badge img { filter:brightness(0); }
+.logo-main { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:3px; color:var(--text); line-height:1; }
+.logo-sub { font-size:9px; color:var(--muted); letter-spacing:3px; text-transform:uppercase; margin-top:2px; }
+.header-right { display:flex; align-items:center; gap:10px; }
+.last-updated { font-size:10px; color:var(--muted); letter-spacing:1px; }
+.theme-toggle {
+  padding:8px 12px; border-radius:6px; font-family:'DM Sans',sans-serif;
+  font-size:14px; cursor:pointer; border:1px solid var(--border);
+  background:transparent; color:var(--text); transition:all .2s;
 }
-.theme-toggle:hover{color:var(--accent-light);border-color:var(--accent);}
-.refresh-btn{
-  padding:8px 18px;border-radius:6px;font-family:'DM Sans',sans-serif;
-  font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);
-  background:transparent;color:var(--muted);letter-spacing:1px;text-transform:uppercase;
+.theme-toggle:hover { color:var(--accent-light); border-color:var(--accent); }
+.refresh-btn {
+  padding:8px 18px; border-radius:6px; font-family:'DM Sans',sans-serif;
+  font-size:11px; font-weight:600; cursor:pointer; border:1px solid var(--border);
+  background:transparent; color:var(--muted); letter-spacing:1px; text-transform:uppercase;
   transition:all .2s;
 }
-.refresh-btn:hover{color:var(--accent-light);border-color:var(--accent);}
+.refresh-btn:hover { color:var(--accent-light); border-color:var(--accent); }
 
 /* ACTION BUTTONS */
 .recommend-btn, .join-list-btn {
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  transition: all .2s;
+  padding: 8px 16px; border-radius: 6px; font-family: 'DM Sans', sans-serif;
+  font-size: 11px; font-weight: 600; cursor: pointer; letter-spacing: 1px;
+  text-transform: uppercase; transition: all .2s;
 }
-.recommend-btn {
-  border: 1px solid var(--accent);
-  background: var(--accent);
-  color: #ffffff;
-}
-.recommend-btn:hover {
-  background: var(--accent-light);
-  border-color: var(--accent-light);
-}
-.join-list-btn {
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text);
-}
-.join-list-btn:hover {
-  border-color: var(--accent3);
-  color: var(--accent3);
-}
+.recommend-btn { border: 1px solid var(--accent); background: var(--accent); color: #ffffff; }
+.recommend-btn:hover { background: var(--accent-light); border-color: var(--accent-light); }
+.join-list-btn { border: 1px solid var(--border); background: transparent; color: var(--text); }
+.join-list-btn:hover { border-color: var(--accent3); color: var(--accent3); }
 
 /* HERO */
-.hero{
+.hero {
   background:linear-gradient(135deg,var(--bg) 0%,var(--card) 50%,var(--bg) 100%);
-  padding:48px 28px 40px;position:relative;overflow:hidden;
-  display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center;
+  padding:48px 28px 40px; position:relative; overflow:hidden;
+  display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:center;
 }
-@media(max-width:860px){.hero{grid-template-columns:1fr;}}
-.hero::after{content:'🚚';font-size:200px;position:absolute;right:-20px;bottom:-40px;opacity:.04;transform:scaleX(-1);pointer-events:none;}
-.hero-eyebrow{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--accent-light);margin-bottom:14px;}
-.hero-rule{width:36px;height:2px;background:var(--accent);margin-bottom:18px;}
-.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,6vw,72px);letter-spacing:4px;line-height:1;}
-.hero h1 span{color:var(--accent-light);}
-.hero-sub{color:var(--muted);margin-top:12px;font-size:13px;max-width:420px;}
-.hero-stats{display:flex;gap:32px;margin-top:32px;flex-wrap:wrap;}
-.hstat{border-left:2px solid var(--border);padding-left:16px;}
-.hstat-num{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--accent-light);line-height:1;}
-.hstat-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+@media(max-width:860px){ .hero { grid-template-columns:1fr; } }
+.hero::after { content:'🚚'; font-size:200px; position:absolute; right:-20px; bottom:-40px; opacity:.04; transform:scaleX(-1); pointer-events:none; }
+.hero-eyebrow { font-size:10px; letter-spacing:4px; text-transform:uppercase; color:var(--accent-light); margin-bottom:14px; }
+.hero-rule { width:36px; height:2px; background:var(--accent); margin-bottom:18px; }
+.hero h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(40px,6vw,72px); letter-spacing:4px; line-height:1; }
+.hero h1 span { color:var(--accent-light); }
+.hero-sub { color:var(--muted); margin-top:12px; font-size:13px; max-width:420px; }
+.hero-stats { display:flex; gap:32px; margin-top:32px; flex-wrap:wrap; }
+.hstat { border-left:2px solid var(--border); padding-left:16px; }
+.hstat-num { font-family:'Bebas Neue',sans-serif; font-size:32px; color:var(--accent-light); line-height:1; }
+.hstat-lbl { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-top:2px; }
 
 /* TODAY PANEL */
-.today-panel{
-  background:rgba(42,82,152,0.08);
-  border:1px solid rgba(42,82,152,0.3);
-  border-radius:var(--radius);padding:24px 28px;
-  position:relative;z-index:1;min-height:220px;
-  display:flex;flex-direction:column;
+.today-panel {
+  background:rgba(42,82,152,0.08); border:1px solid rgba(42,82,152,0.3);
+  border-radius:var(--radius); padding:24px 28px;
+  position:relative; z-index:1; min-height:220px; display:flex; flex-direction:column;
 }
-body.light-mode .today-panel{
-  background:rgba(30,58,138,0.08);
-  border:1px solid rgba(30,58,138,0.2);
+body.light-mode .today-panel { background:rgba(30,58,138,0.08); border:1px solid rgba(30,58,138,0.2); }
+.today-panel-head { display:flex; align-items:center; gap:12px; margin-bottom:18px; }
+.today-dot { width:10px; height:10px; border-radius:50%; background:var(--accent3); animation:pulse 2s infinite; flex-shrink:0; }
+@keyframes pulse { 0%,100%{ opacity:1; transform:scale(1); box-shadow:0 0 0 0 rgba(62,207,142,0.7); } 50%{ opacity:1; transform:scale(1); box-shadow:0 0 0 6px rgba(62,207,142,0); } }
+.today-label { font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--accent3); font-weight:700; }
+.today-date { font-size:11px; color:var(--muted); margin-left:auto; letter-spacing:1px; }
+.today-trucks { display:flex; flex-direction:column; gap:12px; flex:1; }
+.today-truck-item {
+  display:flex; align-items:center; gap:14px; padding:14px 16px; border-radius:8px;
+  background:rgba(42,82,152,0.1); border:1px solid rgba(42,82,152,0.2);
+  cursor:pointer; transition:all .2s;
 }
-.today-panel-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
-.today-dot{width:10px;height:10px;border-radius:50%;background:var(--accent3);animation:pulse 2s infinite;flex-shrink:0;}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1);box-shadow:0 0 0 0 rgba(62,207,142,0.7);}50%{opacity:1;transform:scale(1);box-shadow:0 0 0 6px rgba(62,207,142,0);}}
-.today-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent3);font-weight:700;}
-.today-date{font-size:11px;color:var(--muted);margin-left:auto;letter-spacing:1px;}
-.today-trucks{display:flex;flex-direction:column;gap:12px;flex:1;}
-.today-truck-item{
-  display:flex;align-items:center;gap:14px;
-  padding:14px 16px;border-radius:8px;
-  background:rgba(42,82,152,0.1);border:1px solid rgba(42,82,152,0.2);
-  cursor:pointer;transition:all .2s;
-}
-body.light-mode .today-truck-item{
-  background:rgba(30,58,138,0.08);border:1px solid rgba(30,58,138,0.15);
-}
-.today-truck-item:hover{
-  background:rgba(42,82,152,0.15);border-color:rgba(42,82,152,0.4);
-  transform:translateX(4px);
-}
-.today-truck-icon{font-size:24px;flex-shrink:0;}
-.today-truck-name{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:1px;color:var(--text);line-height:1;}
-.today-truck-meta{font-size:12px;color:var(--muted);margin-top:3px;}
-.today-truck-prop{font-size:11px;font-weight:600;margin-top:2px;text-transform:uppercase;letter-spacing:1px;}
-.today-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);text-align:center;gap:8px;}
-.today-empty-icon{font-size:32px;opacity:.2;}
-.today-empty-txt{font-size:12px;letter-spacing:1px;}
+body.light-mode .today-truck-item { background:rgba(30,58,138,0.08); border:1px solid rgba(30,58,138,0.15); }
+.today-truck-item:hover { background:rgba(42,82,152,0.15); border-color:rgba(42,82,152,0.4); transform:translateX(4px); }
+.today-truck-icon { font-size:24px; flex-shrink:0; }
+.today-truck-name { font-family:'Bebas Neue',sans-serif; font-size:19px; letter-spacing:1px; color:var(--text); line-height:1; }
+.today-truck-meta { font-size:12px; color:var(--muted); margin-top:3px; }
+.today-truck-prop { font-size:11px; font-weight:600; margin-top:2px; text-transform:uppercase; letter-spacing:1px; color:var(--accent-light); }
+.today-empty { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--muted); text-align:center; gap:8px; }
+.today-empty-icon { font-size:32px; opacity:.2; }
+.today-empty-txt { font-size:12px; letter-spacing:1px; }
 
 /* FILTER SECTION */
-.filter-section{
-  background:var(--surface);border-bottom:1px solid var(--border);
-  padding:20px 28px;display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;
+.filter-section {
+  background:var(--surface); border-bottom:1px solid var(--border);
+  padding:20px 28px; display:flex; align-items:center; justify-content:center; gap:24px; flex-wrap:wrap;
 }
-.filter-group{
-  position:relative;
-  display:inline-block;
-  min-width:160px;
+.filter-group { position:relative; display:inline-block; min-width:160px; }
+.filter-btn {
+  width:100%; padding:10px 14px; border-radius:6px; background:var(--card); border:1px solid var(--border);
+  color:var(--text); font-family:'DM Sans',sans-serif; font-size:11px; font-weight:600;
+  letter-spacing:1px; text-transform:uppercase; cursor:pointer; transition:all .2s;
+  display:flex; align-items:center; justify-content:space-between;
 }
-.filter-btn{
-  width:100%;padding:10px 14px;border-radius:6px;
-  background:var(--card);border:1px solid var(--border);
-  color:var(--text);font-family:'DM Sans',sans-serif;font-size:11px;
-  font-weight:600;letter-spacing:1px;text-transform:uppercase;
-  cursor:pointer;transition:all .2s;display:flex;align-items:center;
-  justify-content:space-between;
+.filter-btn:hover { border-color:var(--accent); color:var(--accent-light); }
+.filter-dropdown {
+  display:none; position:absolute; top:100%; left:0; right:0; background:var(--card);
+  border:1px solid var(--border); border-radius:6px; margin-top:4px; z-index:300;
+  max-height:300px; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,0.3);
 }
-.filter-btn:hover{border-color:var(--accent);color:var(--accent-light);}
-.filter-dropdown{
-  display:none;position:absolute;top:100%;left:0;right:0;
-  background:var(--card);border:1px solid var(--border);
-  border-radius:6px;margin-top:4px;z-index:300;
-  max-height:300px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,0.3);
+body.light-mode .filter-dropdown { box-shadow:0 4px 12px rgba(0,0,0,0.1); }
+.filter-dropdown.open { display:block; }
+.filter-option {
+  padding:12px 14px; cursor:pointer; font-size:11px; color:var(--text);
+  border-bottom:1px solid var(--border); transition:all .15s;
 }
-body.light-mode .filter-dropdown{
-  box-shadow:0 4px 12px rgba(0,0,0,0.1);
-}
-.filter-dropdown.open{display:block;}
-.filter-option{
-  padding:12px 14px;cursor:pointer;font-size:11px;color:var(--text);
-  border-bottom:1px solid var(--border);transition:all .15s;
-}
-.filter-option:hover{background:var(--surface);color:var(--accent-light);}
-.filter-option.selected{background:rgba(42,82,152,0.2);color:var(--accent-light);font-weight:600;}
-body.light-mode .filter-option.selected{background:rgba(30,58,138,0.15);}
-.filter-option:last-child{border-bottom:none;}
+.filter-option:hover { background:var(--surface); color:var(--accent-light); }
+.filter-option.selected { background:rgba(42,82,152,0.2); color:var(--accent-light); font-weight:600; }
+body.light-mode .filter-option.selected { background:rgba(30,58,138,0.15); }
+.filter-option:last-child { border-bottom:none; }
 
 /* LAYOUT */
-.layout{display:grid;grid-template-columns:300px 1fr;}
+.layout { display:grid; grid-template-columns:300px 1fr; }
 @media(max-width:900px){
-  .layout{grid-template-columns:1fr;}
-  .sidebar{position:static!important;border-right:none;border-bottom:1px solid var(--border);}
-  header,.hero,.filter-section,.content{padding-left:16px;padding-right:16px;}
+  .layout { grid-template-columns:1fr; }
+  .sidebar { position:static!important; border-right:none; border-bottom:1px solid var(--border); }
+  header,.hero,.filter-section,.content { padding-left:16px; padding-right:16px; }
 }
 
 /* SIDEBAR */
-.sidebar{
-  background:var(--surface);border-right:1px solid var(--border);
-  position:sticky;top:117px;height:fit-content;padding:24px 0;
-}
-.sb-section{padding:0 22px;margin-bottom:24px;}
-.sb-label{
-  font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);
-  margin-bottom:14px;display:flex;align-items:center;gap:10px;
-}
-.sb-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.sidebar { background:var(--surface); border-right:1px solid var(--border); position:sticky; top:117px; height:fit-content; padding:24px 0; }
+.sb-section { padding:0 22px; margin-bottom:24px; }
+.sb-label { font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--muted); margin-bottom:14px; display:flex; align-items:center; gap:10px; }
+.sb-label::after { content:''; flex:1; height:1px; background:var(--border); }
 
-/* Calendar */
-.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.cal-month{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--accent-light);}
-.cal-nav-btn{
-  background:transparent;border:1px solid var(--border);color:var(--text);
-  width:32px;height:32px;border-radius:4px;cursor:pointer;font-size:16px;
-  display:flex;align-items:center;justify-content:center;transition:all .15s;
-}
-.cal-nav-btn:hover{border-color:var(--accent);color:var(--accent-light);}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
-.cal-day-label{text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:4px 0 10px;}
-.cal-day{
-  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
-  border-radius:6px;font-size:13px;cursor:pointer;position:relative;
-  transition:all .12s;font-weight:500;color:var(--muted);
-}
-.cal-day:hover:not(.empty){background:var(--border);color:var(--text);}
-.cal-day.empty{cursor:default;pointer-events:none;}
-.cal-day.today{color:var(--accent-light);font-weight:700;background:rgba(42,82,152,0.15);}
-body.light-mode .cal-day.today{background:rgba(30,58,138,0.12);}
-.cal-day.has-event{color:var(--text);}
-.cal-day.has-event::after{
-  content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);
-  width:4px;height:4px;border-radius:50%;background:var(--accent-light);
-}
-.cal-day.in-week{background:rgba(42,82,152,0.07);}
-body.light-mode .cal-day.in-week{background:rgba(30,58,138,0.08);}
-.cal-day.selected{background:var(--accent)!important;color:#fff!important;font-weight:700;}
-.cal-day.selected::after{background:rgba(255,255,255,.5)!important;}
+/* CALENDAR */
+.cal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.cal-month { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:2px; color:var(--accent-light); }
+.cal-nav-btn { background:transparent; border:1px solid var(--border); color:var(--text); width:32px; height:32px; border-radius:4px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; transition:all .15s; }
+.cal-nav-btn:hover { border-color:var(--accent); color:var(--accent-light); }
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+.cal-day-label { text-align:center; font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); padding:4px 0 10px; }
+.cal-day { aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:13px; cursor:pointer; position:relative; transition:all .12s; font-weight:500; color:var(--muted); }
+.cal-day:hover:not(.empty) { background:var(--border); color:var(--text); }
+.cal-day.empty { cursor:default; pointer-events:none; }
+.cal-day.today { color:var(--accent-light); font-weight:700; background:rgba(42,82,152,0.15); }
+body.light-mode .cal-day.today { background:rgba(30,58,138,0.12); }
+.cal-day.has-event { color:var(--text); }
+.cal-day.has-event::after { content:''; position:absolute; bottom:3px; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:var(--accent-light); }
+.cal-day.selected { background:var(--accent)!important; color:#fff!important; font-weight:700; }
 
-/* Legend */
-.legend{display:flex;flex-direction:column;gap:8px;}
-.legend-item{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);}
-.legend-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.legend-count{margin-left:auto;font-size:11px;color:var(--accent-light);font-weight:600;}
+/* LEGEND & UPCOMING */
+.legend { display:flex; flex-direction:column; gap:8px; }
+.legend-item { display:flex; align-items:center; gap:8px; font-size:11px; color:var(--muted); }
+.legend-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.legend-count { margin-left:auto; font-size:11px; color:var(--accent-light); font-weight:600; }
 
-/* Upcoming sidebar */
-.upcoming-items{display:flex;flex-direction:column;}
-.upcoming-item{
-  display:flex;gap:10px;align-items:flex-start;
-  padding:10px 22px;cursor:pointer;transition:all .2s;
-  border-left:2px solid transparent;
-}
-.upcoming-item:hover{background:var(--card);border-left-color:var(--accent);transform:translateX(2px);}
-.upcoming-badge{border-radius:4px;padding:4px 8px;text-align:center;flex-shrink:0;min-width:40px;}
-.upcoming-badge .uday{font-family:'Bebas Neue',sans-serif;font-size:22px;line-height:1;color:#fff;}
-.upcoming-badge .umon{font-size:8px;text-transform:uppercase;letter-spacing:1px;font-weight:700;color:rgba(255,255,255,.65);}
-.upcoming-name{font-size:12px;font-weight:600;color:var(--text);line-height:1.2;}
-.upcoming-prop{font-size:10px;color:var(--muted);margin-top:2px;}
+.upcoming-items { display:flex; flex-direction:column; }
+.upcoming-item { display:flex; gap:10px; align-items:flex-start; padding:10px 22px; cursor:pointer; transition:all .2s; border-left:2px solid transparent; }
+.upcoming-item:hover { background:var(--card); border-left-color:var(--accent); transform:translateX(2px); }
+.upcoming-badge { border-radius:4px; padding:4px 8px; text-align:center; flex-shrink:0; min-width:40px; background:var(--accent); }
+.upcoming-badge .uday { font-family:'Bebas Neue',sans-serif; font-size:22px; line-height:1; color:#fff; }
+.upcoming-badge .umon { font-size:8px; text-transform:uppercase; letter-spacing:1px; font-weight:700; color:rgba(255,255,255,.65); }
+.upcoming-name { font-size:12px; font-weight:600; color:var(--text); line-height:1.2; }
+.upcoming-prop { font-size:10px; color:var(--muted); margin-top:2px; }
 
 /* CONTENT */
-.content{padding:28px 32px 60px;}
-.content-main-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;margin-bottom:24px;}
-.content-main-title span{color:var(--accent-light);}
+.content { padding:28px 32px 60px; }
+.trucks-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; }
+.truck-card { background:var(--card); border-radius:var(--radius); border:1px solid var(--border); overflow:hidden; transition:all .25s; cursor:pointer; }
+.truck-card:hover { transform:translateY(-4px); border-color:var(--accent); box-shadow:0 12px 40px rgba(42,82,152,.18); }
+.menu-img-wrap { aspect-ratio:3/4; background:var(--border); overflow:hidden; position:relative; }
+.menu-img-wrap img { width:100%; height:100%; object-fit:cover; transition:transform .35s; display:block; filter:brightness(.9); }
+.truck-card:hover .menu-img-wrap img { transform:scale(1.05); filter:brightness(1); }
+.card-body { padding:14px 16px 16px; }
+.card-name { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:1px; line-height:1.1; margin-bottom:10px; color:#fff; }
+.card-property { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; font-weight:600; }
+.card-date { font-size:12px; color:var(--accent-light); font-weight:600; }
+.card-time { font-size:11px; color:var(--muted); margin-top:3px; }
 
-/* Section headers */
-.section-head{display:flex;align-items:center;gap:12px;margin-bottom:16px;margin-top:32px;flex-wrap:wrap;}
-.section-head:first-of-type{margin-top:0;}
-.section-badge{
-  font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:600;
-  padding:4px 12px;border-radius:20px;flex-shrink:0;
-}
-.badge-week{background:rgba(42,82,152,0.2);color:var(--accent-light);border:1px solid rgba(42,82,152,0.3);}
-body.light-mode .badge-week{background:rgba(30,58,138,0.15);border:1px solid rgba(30,58,138,0.2);}
-.badge-future{background:rgba(58,175,100,0.15);color:var(--accent3);border:1px solid rgba(58,175,100,0.25);}
-body.light-mode .badge-future{background:rgba(5,150,105,0.12);border:1px solid rgba(5,150,105,0.2);}
-.badge-past{background:rgba(90,96,112,0.15);color:var(--muted);border:1px solid rgba(90,96,112,0.2);}
-body.light-mode .badge-past{background:rgba(107,114,128,0.1);border:1px solid rgba(107,114,128,0.15);}
-.section-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--text);}
-.section-count{font-size:11px;color:var(--muted);margin-left:auto;}
-
-/* Past toggle */
-.past-toggle{
-  display:flex;align-items:center;gap:12px;
-  cursor:pointer;padding:14px 18px;border-radius:10px;
-  border:1px solid var(--border);background:var(--surface);
-  transition:all .2s;width:100%;text-align:left;margin-top:32px;
-}
-.past-toggle:hover{border-color:var(--muted);}
-.past-arrow{font-size:12px;color:var(--muted);transition:transform .25s;margin-left:auto;}
-.past-toggle.open .past-arrow{transform:rotate(180deg);}
-.past-content{display:none;margin-top:16px;}
-.past-content.open{display:block;}
-
-/* TRUCKS GRID */
-.trucks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;}
-.truck-card{
-  background:var(--card);border-radius:var(--radius);border:1px solid var(--border);
-  overflow:hidden;transition:all .25s;cursor:pointer;
-}
-.truck-card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 12px 40px rgba(42,82,152,.18);}
-body.light-mode .truck-card:hover{box-shadow:0 12px 40px rgba(30,58,138,.15);}
-.truck-card.today-card{border-color:rgba(42,82,152,0.5);box-shadow:0 0 24px rgba(42,82,152,.12);}
-body.light-mode .truck-card.today-card{border-color:rgba(30,58,138,0.4);box-shadow:0 0 24px rgba(30,58,138,.1);}
-.truck-card.past-card{opacity:.65;}
-.truck-card.past-card:hover{opacity:1;}
-.menu-img-wrap{aspect-ratio:3/4;background:var(--border);overflow:hidden;position:relative;}
-.menu-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .35s;display:block;filter:brightness(.9);}
-.truck-card:hover .menu-img-wrap img{transform:scale(1.05);filter:brightness(1);}
-.menu-placeholder{
-  width:100%;height:100%;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:10px;
-  background:linear-gradient(135deg,var(--surface),var(--border));color:var(--muted);
-}
-.ph-icon{font-size:40px;opacity:.2;}
-.ph-text{font-size:9px;text-transform:uppercase;letter-spacing:3px;}
-.zoom-hint{
-  position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.7);
-  color:var(--accent-light);font-size:16px;width:30px;height:30px;
-  border-radius:6px;display:flex;align-items:center;justify-content:center;
-  opacity:0;transition:opacity .2s;
-}
-body.light-mode .zoom-hint{background:rgba(0,0,0,.5);}
-.truck-card:hover .zoom-hint{opacity:1;}
-.prop-ribbon{
-  position:absolute;top:10px;left:0;
-  padding:3px 12px 3px 10px;font-size:9px;font-weight:700;
-  letter-spacing:2px;text-transform:uppercase;
-  background:rgba(0,0,0,.82);backdrop-filter:blur(6px);color:#fff;
-}
-.today-pill{
-  position:absolute;top:10px;right:10px;
-  background:var(--accent);color:#fff;
-  font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
-  padding:3px 8px;border-radius:20px;
-}
-.card-body{padding:14px 16px 16px;}
-.card-day-tag{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
-.card-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;line-height:1.1;margin-bottom:10px;}
-.card-divider{height:1px;background:var(--border);margin-bottom:10px;}
-.card-property{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-weight:600;}
-.card-date{font-size:12px;color:var(--accent-light);font-weight:600;}
-.card-time{font-size:11px;color:var(--muted);margin-top:3px;}
-
-/* States */
-.empty-section{
-  padding:36px 20px;text-align:center;color:var(--muted);
-  border:1px dashed var(--border);border-radius:var(--radius);
-}
-.empty-section .ei{font-size:30px;opacity:.15;margin-bottom:10px;}
-.empty-section .em{font-size:13px;}
-.loading-state{padding:60px;text-align:center;}
-.spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 14px;}
-@keyframes spin{to{transform:rotate(360deg)}}
+.spinner { width:28px; height:28px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 1s linear infinite; margin:0 auto 14px; }
+@keyframes spin { to { transform:rotate(360deg) } }
 
 /* LIGHTBOX */
-.lightbox{
-  position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.95);
-  display:none;align-items:center;justify-content:center;padding:20px;
-  backdrop-filter:blur(10px);
-}
-body.light-mode .lightbox{background:rgba(0,0,0,.92);}
-.lightbox.open{display:flex;}
-.lb-inner{position:relative;max-width:680px;width:100%;max-height:90vh;display:flex;flex-direction:column;animation:lbIn .25s ease;}
-@keyframes lbIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
-.lb-img-wrap{overflow-y:auto;border-radius:8px;border:1px solid var(--border);flex:1;min-height:450px;max-height:70vh;background:#0d0d1a;}
-.lb-img{width:100%;display:block;}
-.lb-iframe{width:100%;height:100%;min-height:500px;border:none;border-radius:8px;}
-.lb-no-img{padding:60px;text-align:center;color:var(--muted);font-size:14px;}
-.lb-close{
-  position:absolute;top:-12px;right:-12px;background:var(--accent2);
-  color:#fff;border:none;width:28px;height:28px;border-radius:50%;
-  font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;
-}
-.lb-info{margin-top:14px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-shrink:0;padding:0 14px;}
-.lb-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#fff;}
-.lb-prop{font-size:10px;color:#ccc;letter-spacing:2px;text-transform:uppercase;margin-top:3px;}
-.lb-date{text-align:right;font-size:12px;color:#ccc;font-weight:600;}
-.lb-actions{margin-top:12px;display:flex;gap:10px;flex-shrink:0;padding:0 14px;}
-.lb-btn{
-  flex:1;padding:10px 16px;border-radius:6px;
-  font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;
-  letter-spacing:1px;text-transform:uppercase;cursor:pointer;
-  border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);
-  color:#fff;transition:all .2s;text-align:center;
-}
-.lb-btn:hover{border-color:var(--accent-light);background:rgba(42,82,152,.2);color:#fff;}
+.lightbox { position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,.95); display:none; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(10px); }
+.lightbox.open { display:flex; }
+.lb-inner { position:relative; max-width:680px; width:100%; max-height:90vh; display:flex; flex-direction:column; }
+.lb-img-wrap { overflow-y:auto; border-radius:8px; border:1px solid var(--border); flex:1; min-height:450px; max-height:70vh; background:#0d0d1a; }
+.lb-close { position:absolute; top:-12px; right:-12px; background:var(--accent2); color:#fff; border:none; width:28px; height:28px; border-radius:50%; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:10; }
 
-/* MODAL OVERLAY & CARD */
-.modal-overlay {
-  position: fixed; inset: 0; z-index: 1000;
-  background: rgba(0,0,0,.85); backdrop-filter: blur(8px);
-  display: none; align-items: center; justify-content: center;
-  padding: 20px;
-}
-.modal-overlay.open { display: flex; }
-.modal-card {
-  position: relative; width: min(500px, 100%);
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 28px 32px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-  animation: lbIn .25s ease;
-}
-.modal-close {
-  position: absolute; top: 16px; right: 16px;
-  background: transparent; border: none; color: var(--muted);
-  font-size: 22px; cursor: pointer; transition: color .2s;
-}
-.modal-close:hover { color: var(--accent2); }
+/* MODALS */
+.modal-overlay { position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,.85); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:20px; }
+.modal-overlay.open { display:flex; }
+.modal-card { position:relative; width:min(500px, 100%); background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:28px 32px; box-shadow:0 20px 50px rgba(0,0,0,0.5); }
+.modal-close { position:absolute; top:16px; right:16px; background:transparent; border:none; color:var(--muted); font-size:22px; cursor:pointer; }
+.modal-title { font-family:'Bebas Neue', sans-serif; font-size:28px; letter-spacing:2px; color:var(--text); }
+.modal-sub { font-size:12px; color:var(--muted); margin-top:4px; margin-bottom:20px; }
+.form-group { margin-bottom:16px; display:flex; flex-direction:column; gap:6px; }
+.form-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--text); }
+.form-input { width:100%; padding:10px 14px; border-radius:6px; background:var(--surface); border:1px solid var(--border); color:var(--text); font-family:'DM Sans', sans-serif; font-size:13px; outline:none; }
+.form-submit-btn { width:100%; padding:12px; border-radius:6px; margin-top:8px; background:var(--accent); border:none; color:#fff; font-family:'Bebas Neue', sans-serif; font-size:18px; letter-spacing:2px; cursor:pointer; }
+.form-success-msg { padding:14px; border-radius:6px; background:rgba(62,207,142,0.15); border:1px solid var(--accent3); color:var(--accent3); font-size:13px; text-align:center; margin-top:16px; }
 
-/* FORM STYLES */
-.modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; color: var(--text); }
-.modal-sub { font-size: 12px; color: var(--muted); margin-top: 4px; margin-bottom: 20px; }
-.form-group { margin-bottom: 16px; display: flex; flex-direction: column; gap: 6px; }
-.form-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text); }
-.form-label .required { color: var(--accent2); }
-.form-label .optional { color: var(--muted); font-size: 10px; font-weight: 400; }
-.form-input {
-  width: 100%; padding: 10px 14px; border-radius: 6px;
-  background: var(--surface); border: 1px solid var(--border);
-  color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px;
-  outline: none; transition: border-color .2s;
-}
-.form-input:focus { border-color: var(--accent-light); }
-.form-submit-btn {
-  width: 100%; padding: 12px; border-radius: 6px; margin-top: 8px;
-  background: var(--accent); border: none; color: #fff;
-  font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px;
-  cursor: pointer; transition: background .2s;
-}
-.form-submit-btn:hover { background: var(--accent-light); }
-.form-success-msg {
-  padding: 14px; border-radius: 6px; background: rgba(62,207,142,0.15);
-  border: 1px solid var(--accent3); color: var(--accent3);
-  font-size: 13px; text-align: center; margin-top: 16px;
-}
-
-/* FOOTER */
-footer{
-  background:var(--surface);border-top:1px solid var(--border);
-  padding:24px 28px;display:flex;align-items:center;
-  justify-content:space-between;flex-wrap:wrap;gap:12px;
-}
-.footer-copy{font-size:10px;color:var(--muted);letter-spacing:1px;}
-.footer-note{font-size:11px;color:var(--muted);}
-.footer-note a{color:var(--accent-light);text-decoration:none;}
-.footer-note a:hover{text-decoration:underline;}
-
-.error-banner{
-  background:rgba(232,69,69,.08);border:1px solid rgba(232,69,69,.25);
-  border-radius:8px;padding:14px 18px;margin-bottom:20px;
-  font-size:13px;color:#f08080;display:none;line-height:1.6;
-}
-.error-banner.show{display:block;}
-
-::-webkit-scrollbar{width:5px;}
-::-webkit-scrollbar-track{background:var(--bg);}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+footer { background:var(--surface); border-top:1px solid var(--border); padding:24px 28px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+.footer-copy { font-size:10px; color:var(--muted); letter-spacing:1px; }
+.footer-note { font-size:11px; color:var(--muted); }
+.footer-note a { color:var(--accent-light); text-decoration:none; }
 </style>
 </head>
 <body>
@@ -483,16 +261,15 @@ footer{
       </div>
     </a>
     <div class="header-right">
-      <span class="last-updated" id="lastUpdated"></span>
       <button class="recommend-btn" onclick="openRecommendModal()">+ Recommend Truck</button>
       <button class="join-list-btn" onclick="openJoinListModal()">+ Join Schedule List</button>
-      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">☀️ / 🌙</button>
+      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">☀️ / 🌙</button>
       <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
     </div>
   </header>
 
   <div class="hero">
-    <div class="hero-left">
+    <div>
       <div class="hero-eyebrow">Tenant Amenity Program</div>
       <div class="hero-rule"></div>
       <h1>Food Truck<br/><span>Visit Schedule</span></h1>
@@ -504,7 +281,7 @@ footer{
       </div>
     </div>
 
-    <div class="today-panel" id="todayPanel">
+    <div class="today-panel">
       <div class="today-panel-head">
         <div class="today-dot"></div>
         <div class="today-label">On Site Today</div>
@@ -519,21 +296,24 @@ footer{
   <div class="filter-section">
     <div class="filter-group">
       <button class="filter-btn" onclick="toggleDropdown('propDrop')">
-        <span id="propLabel">All Properties</span>
-        <span>▼</span>
+        <span id="propLabel">All Properties</span><span>▼</span>
       </button>
       <div class="filter-dropdown" id="propDrop">
-        <div class="filter-option selected" data-value="all" onclick="selectFilter('prop', 'all', 'All Properties')">All Properties</div>
+        <div class="filter-option selected" onclick="selectFilter('prop', 'all', 'All Properties')">All Properties</div>
+        <div class="filter-option" onclick="selectFilter('prop', 'Northcreek', 'Northcreek')">Northcreek</div>
+        <div class="filter-option" onclick="selectFilter('prop', '985 Space Center', '985 Space Center')">985 Space Center</div>
+        <div class="filter-option" onclick="selectFilter('prop', '1055 Newport', '1055 Newport')">1055 Newport</div>
+        <div class="filter-option" onclick="selectFilter('prop', 'Garden Gateway', 'Garden Gateway')">Garden Gateway</div>
+        <div class="filter-option" onclick="selectFilter('prop', 'Presidio', 'Presidio')">Presidio</div>
       </div>
     </div>
 
     <div class="filter-group">
       <button class="filter-btn" onclick="toggleDropdown('truckDrop')">
-        <span id="truckLabel">All Food Trucks</span>
-        <span>▼</span>
+        <span id="truckLabel">All Food Trucks</span><span>▼</span>
       </button>
       <div class="filter-dropdown" id="truckDrop">
-        <div class="filter-option selected" data-value="all" onclick="selectFilter('truck', 'all', 'All Food Trucks')">All Food Trucks</div>
+        <div class="filter-option selected" onclick="selectFilter('truck', 'all', 'All Food Trucks')">All Food Trucks</div>
       </div>
     </div>
   </div>
@@ -550,188 +330,269 @@ footer{
         <div class="cal-grid" id="calGrid"></div>
       </div>
       <div class="sb-section">
-        <div class="sb-label">Properties</div>
-        <div class="legend" id="legend"></div>
+        <div class="sb-label">Coming Up</div>
+        <div class="upcoming-items" id="upcomingList"></div>
       </div>
-      <div class="sb-section"><div class="sb-label">Coming Up</div></div>
-      <div class="upcoming-items" id="upcomingList"></div>
     </aside>
 
     <main class="content">
-      <div class="error-banner" id="errorBanner"></div>
       <div id="mainContent"><div class="loading-state"><div class="spinner"></div></div></div>
     </main>
   </div>
 
   <footer>
     <div class="footer-copy">© Alturas Capital Partners · Colorado Springs, Colorado</div>
-    <div class="footer-note">Want to suggest a food truck? Email us at <a href="mailto:admincos@alturas.com">admincos@alturas.com</a></div>
+    <div class="footer-note">Suggest a food truck: <a href="mailto:admincos@alturas.com">admincos@alturas.com</a></div>
   </footer>
+</div>
 
-  <div class="lightbox" id="lightbox" onclick="closeLb(event)">
-    <div class="lb-inner">
-      <button class="lb-close" onclick="closeLb()">&times;</button>
-      <div class="lb-img-wrap" id="lbImgWrap"></div>
-      <div class="lb-info">
-        <div><div class="lb-name" id="lbName"></div><div class="lb-prop" id="lbProp"></div></div>
-        <div class="lb-date" id="lbDate"></div>
+<!-- MODALS -->
+<div class="modal-overlay" id="recommendModal">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal('recommendModal')">&times;</button>
+    <div class="modal-title">Recommend a Food Truck</div>
+    <p class="modal-sub">Know a great food truck for your property? Let us know below!</p>
+    <form onsubmit="handleRecommendSubmit(event)">
+      <div class="form-group"><label class="form-label">Your Name *</label><input type="text" id="recName" class="form-input" required/></div>
+      <div class="form-group"><label class="form-label">Your Email *</label><input type="email" id="recEmail" class="form-input" required/></div>
+      <div class="form-group">
+        <label class="form-label">Property *</label>
+        <select id="recProp" class="form-input" required>
+          <option value="Northcreek">Northcreek</option>
+          <option value="985 Space Center">985 Space Center</option>
+          <option value="1055 Newport">1055 Newport</option>
+          <option value="Garden Gateway">Garden Gateway</option>
+          <option value="Presidio">Presidio</option>
+        </select>
       </div>
-      <div class="lb-actions" id="lbActions" style="display:none;">
-        <button class="lb-btn" onclick="downloadMenu()">⬇ View / Download Menu</button>
-        <button class="lb-btn" onclick="openMenuFull()">↗ Open Full Size</button>
-      </div>
-    </div>
+      <div class="form-group"><label class="form-label">Food Truck Name *</label><input type="text" id="recTruck" class="form-input" required/></div>
+      <div class="form-group"><label class="form-label">Contact Link / Email (Optional)</label><input type="text" id="recLink" class="form-input"/></div>
+      <button type="submit" class="form-submit-btn">Submit Recommendation</button>
+    </form>
+    <div id="recSuccess" class="form-success-msg" style="display:none;">✅ Recommendation submitted!</div>
   </div>
+</div>
 
-  <!-- RECOMMEND A FOOD TRUCK MODAL -->
-  <div class="modal-overlay" id="recommendModal" onclick="closeRecommendModal(event)">
-    <div class="modal-card">
-      <button class="modal-close" onclick="closeRecommendModal()">&times;</button>
-      <div class="modal-header">
-        <div class="modal-title">Recommend a Food Truck</div>
-        <p class="modal-sub">Know a great food truck for your property? Let us know below!</p>
+<div class="modal-overlay" id="joinListModal">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal('joinListModal')">&times;</button>
+    <div class="modal-title">Join Schedule List</div>
+    <p class="modal-sub">Get notified when food trucks are scheduled for your building.</p>
+    <form onsubmit="handleJoinSubmit(event)">
+      <div class="form-group"><label class="form-label">Full Name *</label><input type="text" id="joinName" class="form-input" required/></div>
+      <div class="form-group"><label class="form-label">Email Address *</label><input type="email" id="joinEmail" class="form-input" required/></div>
+      <div class="form-group"><label class="form-label">Company Name *</label><input type="text" id="joinCompany" class="form-input" required/></div>
+      <div class="form-group">
+        <label class="form-label">Property *</label>
+        <select id="joinProp" class="form-input" required>
+          <option value="Northcreek">Northcreek</option>
+          <option value="985 Space Center">985 Space Center</option>
+          <option value="1055 Newport">1055 Newport</option>
+          <option value="Garden Gateway">Garden Gateway</option>
+          <option value="Presidio">Presidio</option>
+        </select>
       </div>
-
-      <form id="recommendForm" onsubmit="handleRecommendationSubmit(event)">
-        <div class="form-group">
-          <label for="recName" class="form-label">Your Name <span class="required">*</span></label>
-          <input type="text" id="recName" class="form-input" placeholder="e.g., Jane Doe" required />
-        </div>
-
-        <div class="form-group">
-          <label for="recEmail" class="form-label">Your Email <span class="required">*</span></label>
-          <input type="email" id="recEmail" class="form-input" placeholder="jane@company.com" required />
-        </div>
-
-        <div class="form-group">
-          <label for="recProperty" class="form-label">Your Property <span class="required">*</span></label>
-          <select id="recProperty" class="form-input" required>
-            <option value="" disabled selected>Select your property...</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="recTruckName" class="form-label">Food Truck Name <span class="required">*</span></label>
-          <input type="text" id="recTruckName" class="form-input" placeholder="e.g., Tacos El Rey" required />
-        </div>
-
-        <div class="form-group">
-          <label for="recTruckLink" class="form-label">Truck Email, Website, or Social Link <span class="optional">(Optional)</span></label>
-          <input type="text" id="recTruckLink" class="form-input" placeholder="https://instagram.com/tacoselrey or info@tacos.com" />
-        </div>
-
-        <button type="submit" class="form-submit-btn" id="recSubmitBtn">Submit Recommendation</button>
-      </form>
-      
-      <div id="recSuccessMsg" class="form-success-msg" style="display:none;">
-        ✅ Thank you! Your recommendation has been submitted.
-      </div>
-    </div>
-  </div>
-
-  <!-- JOIN FOOD TRUCK LIST MODAL -->
-  <div class="modal-overlay" id="joinListModal" onclick="closeJoinListModal(event)">
-    <div class="modal-card">
-      <button class="modal-close" onclick="closeJoinListModal()">&times;</button>
-      <div class="modal-header">
-        <div class="modal-title">Join Schedule List</div>
-        <p class="modal-sub">Get notified when food trucks are scheduled for your property building.</p>
-      </div>
-
-      <form id="joinListForm" onsubmit="handleJoinListSubmit(event)">
-        <div class="form-group">
-          <label for="joinName" class="form-label">Full Name <span class="required">*</span></label>
-          <input type="text" id="joinName" class="form-input" placeholder="e.g., Alex Morgan" required />
-        </div>
-
-        <div class="form-group">
-          <label for="joinEmail" class="form-label">Email Address <span class="required">*</span></label>
-          <input type="email" id="joinEmail" class="form-input" placeholder="alex@company.com" required />
-        </div>
-
-        <div class="form-group">
-          <label for="joinCompany" class="form-label">Company Name <span class="required">*</span></label>
-          <input type="text" id="joinCompany" class="form-input" placeholder="e.g., Acuity Financial" required />
-        </div>
-
-        <div class="form-group">
-          <label for="joinProperty" class="form-label">Property Location <span class="required">*</span></label>
-          <select id="joinProperty" class="form-input" required>
-            <option value="" disabled selected>Select your property...</option>
-          </select>
-        </div>
-
-        <button type="submit" class="form-submit-btn" id="joinSubmitBtn">Join Notification List</button>
-      </form>
-      
-      <div id="joinSuccessMsg" class="form-success-msg" style="display:none;">
-        ✅ You've been added to the schedule notification list!
-      </div>
-    </div>
+      <button type="submit" class="form-submit-btn">Join Notification List</button>
+    </form>
+    <div id="joinSuccess" class="form-success-msg" style="display:none;">✅ Added to schedule list!</div>
   </div>
 </div>
 
 <script>
-// SUPABASE CREDENTIALS
 const SUPABASE_URL = 'https://xgnhzvjacultlyvioifw.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhnbmh6dmphY3VsdGx5dmlvaWZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE4MTk1NTMsImV4cCI6MjEwNzM5NTU1M30.jddLUkGKhXXEqjeUsZAONYPsEBYsY6nMqgPpNKnWcEI';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const PROPS = [
-  { id:'Northcreek',       color:'#2a5298' },
-  { id:'985 Space Center', color:'#1a6b8a' },
-  { id:'1055 Newport',     color:'#2a6b4a' },
-  { id:'Garden Gateway',   color:'#4a3a7a' },
-  { id:'Presidio',         color:'#1a4a6b' },
-];
+let allBookings = [];
+let filterProp = 'all';
+let filterTruck = 'all';
+let calDate = new Date();
 
-let trucks = [], filterProp = 'all', filterTruck = 'all', filterDate = null, calYear, calMonth;
+function toggleTheme() { document.body.classList.toggle('light-mode'); }
+function toggleDropdown(id) { document.getElementById(id).classList.toggle('open'); }
+function openRecommendModal() { document.getElementById('recommendModal').classList.add('open'); }
+function openJoinListModal() { document.getElementById('joinListModal').classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-const now = new Date(); now.setHours(0,0,0,0);
-const todayStr = iso(now);
+async function loadData() {
+  document.getElementById('mainContent').innerHTML = '<div class="loading-state"><div class="spinner"></div></div>';
+  
+  const { data, error } = await sb.from('bookings').select('*').order('visit_date', { ascending: true });
+  if (error) {
+    document.getElementById('mainContent').innerHTML = `<div style="text-align:center; color:var(--accent2); padding:40px;">Failed to load schedule: ${error.message}</div>`;
+    return;
+  }
 
-function escapeHtml(str) {
-  return String(str || '').replace(/[&<>"']/g, m => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-  })[m]);
+  allBookings = data || [];
+  renderStats();
+  renderToday();
+  renderCalendar();
+  renderUpcoming();
+  renderGrid();
+  populateTruckFilter();
 }
 
-function getWeekBounds() {
-  const d = new Date(now), day = d.getDay();
-  const mon = new Date(d); mon.setDate(d.getDate() - (day===0?6:day-1));
-  const sun = new Date(mon); sun.setDate(mon.getDate()+6);
-  return { start:iso(mon), end:iso(sun) };
+function renderStats() {
+  const todayIso = new Date().toISOString().split('T')[0];
+  const upcoming = allBookings.filter(b => b.visit_date >= todayIso);
+  const trucksSet = new Set(allBookings.map(b => b.truck_name));
+
+  document.getElementById('statVisits').textContent = upcoming.length;
+  document.getElementById('statTrucks').textContent = trucksSet.size;
+  document.getElementById('todayDateLabel').textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-function toggleTheme(){
-  document.body.classList.toggle('light-mode');
-  localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+function renderToday() {
+  const todayIso = new Date().toISOString().split('T')[0];
+  const todayVisits = allBookings.filter(b => b.visit_date === todayIso);
+  const container = document.getElementById('todayTrucks');
+
+  if (!todayVisits.length) {
+    container.innerHTML = '<div class="today-empty"><div class="today-empty-icon">🚚</div><div class="today-empty-txt">No food trucks scheduled on site today.</div></div>';
+    return;
+  }
+
+  container.innerHTML = todayVisits.map(v => `
+    <div class="today-truck-item">
+      <div class="today-truck-icon">🚚</div>
+      <div>
+        <div class="today-truck-name">${v.truck_name}</div>
+        <div class="today-truck-prop">${v.property_name}</div>
+        <div class="today-truck-meta">${v.time_slot || '11:00 AM - 2:00 PM'}</div>
+      </div>
+    </div>
+  `).join('');
 }
 
-function toggleDropdown(id){
-  const drop = document.getElementById(id);
-  document.querySelectorAll('.filter-dropdown').forEach(d => {
-    if(d.id !== id) d.classList.remove('open');
-  });
-  drop.classList.toggle('open');
-}
-
-function selectFilter(type, value, label){
-  if(type === 'prop') {
+function selectFilter(type, value, label) {
+  if (type === 'prop') {
     filterProp = value;
     document.getElementById('propLabel').textContent = label;
-    document.querySelectorAll('#propDrop .filter-option').forEach(o => o.classList.toggle('selected', o.dataset.value === value));
-  } else if(type === 'truck') {
+  } else {
     filterTruck = value;
     document.getElementById('truckLabel').textContent = label;
-    document.querySelectorAll('#truckDrop .filter-option').forEach(o => o.classList.toggle('selected', o.dataset.value === value));
   }
   document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('open'));
-  renderTodayPanel(); renderCalendar(); renderUpcoming(); renderMain();
+  renderGrid();
 }
 
-(function boot() {
-  if(localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
-  calYear=now.getFullYear(); calMonth=now.getMonth();
-  document.getElementById('todayDateLabel').textContent =
-    now.
+function populateTruckFilter() {
+  const trucks = [...new Set(allBookings.map(b => b.truck_name))].sort();
+  const dropdown = document.getElementById('truckDrop');
+  dropdown.innerHTML = '<div class="filter-option selected" onclick="selectFilter(\'truck\', \'all\', \'All Food Trucks\')">All Food Trucks</div>';
+  trucks.forEach(t => {
+    dropdown.innerHTML += `<div class="filter-option" onclick="selectFilter('truck', '${t}', '${t}')">${t}</div>`;
+  });
+}
+
+function renderGrid() {
+  const container = document.getElementById('mainContent');
+  const filtered = allBookings.filter(b => {
+    const pMatch = filterProp === 'all' || b.property_name === filterProp;
+    const tMatch = filterTruck === 'all' || b.truck_name === filterTruck;
+    return pMatch && tMatch;
+  });
+
+  if (!filtered.length) {
+    container.innerHTML = '<div style="text-align:center; color:var(--muted); padding:60px;">No scheduled food truck visits match your filters.</div>';
+    return;
+  }
+
+  container.innerHTML = `<div class="trucks-grid">${filtered.map(b => `
+    <div class="truck-card">
+      <div class="menu-img-wrap">
+        ${b.menu_url ? `<img src="${b.menu_url}" alt="${b.truck_name} Menu" />` : '<div style="display:flex; align-items:center; justify-content:center; height:100%; color:var(--muted); font-size:11px;">NO MENU ATTACHED</div>'}
+      </div>
+      <div class="card-body">
+        <div class="card-property">${b.property_name}</div>
+        <div class="card-name">${b.truck_name}</div>
+        <div class="card-date">📅 ${b.visit_date}</div>
+        <div class="card-time">⏰ ${b.time_slot || '11:00 AM - 2:00 PM'}</div>
+      </div>
+    </div>
+  `).join('')}</div>`;
+}
+
+function calNav(dir) {
+  calDate.setMonth(calDate.getMonth() + dir);
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const y = calDate.getFullYear();
+  const m = calDate.getMonth();
+  document.getElementById('calLabel').textContent = new Date(y, m).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  const firstDay = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = ['S','M','T','W','T','F','S'].map(d => `<div class="cal-day-label">${d}</div>`).join('');
+
+  for (let i = 0; i < firstDay; i++) grid.innerHTML += '<div class="cal-day empty"></div>';
+
+  const monthIsoPrefix = `${y}-${String(m + 1).padStart(2, '0')}`;
+  const bookedDates = new Set(allBookings.filter(b => b.visit_date.startsWith(monthIsoPrefix)).map(b => b.visit_date));
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dayStr = `${monthIsoPrefix}-${String(day).padStart(2, '0')}`;
+    const hasEvent = bookedDates.has(dayStr);
+    grid.innerHTML += `<div class="cal-day ${hasEvent ? 'has-event' : ''}">${day}</div>`;
+  }
+}
+
+function renderUpcoming() {
+  const todayIso = new Date().toISOString().split('T')[0];
+  const upcoming = allBookings.filter(b => b.visit_date >= todayIso).slice(0, 5);
+  const container = document.getElementById('upcomingList');
+
+  if (!upcoming.length) {
+    container.innerHTML = '<div style="color:var(--muted); font-size:12px; padding:10px 0;">No upcoming visits.</div>';
+    return;
+  }
+
+  container.innerHTML = upcoming.map(b => {
+    const dt = new Date(b.visit_date + 'T00:00:00');
+    return `
+      <div class="upcoming-item">
+        <div class="upcoming-badge">
+          <div class="uday">${dt.getDate()}</div>
+          <div class="umon">${dt.toLocaleDateString('en-US', { month: 'short' })}</div>
+        </div>
+        <div>
+          <div class="upcoming-name">${b.truck_name}</div>
+          <div class="upcoming-prop">${b.property_name}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function handleRecommendSubmit(e) {
+  e.preventDefault();
+  const user_name = document.getElementById('recName').value;
+  const user_email = document.getElementById('recEmail').value;
+  const property_name = document.getElementById('recProp').value;
+  const truck_name = document.getElementById('recTruck').value;
+  const truck_link = document.getElementById('recLink').value || 'N/A';
+
+  await sb.from('recommendations').insert([{ user_name, user_email, property_name, truck_name, truck_link }]);
+  document.getElementById('recSuccess').style.display = 'block';
+  setTimeout(() => closeModal('recommendModal'), 2000);
+}
+
+async function handleJoinSubmit(e) {
+  e.preventDefault();
+  const full_name = document.getElementById('joinName').value;
+  const email = document.getElementById('joinEmail').value;
+  const company = document.getElementById('joinCompany').value;
+  const property_name = document.getElementById('joinProp').value;
+
+  await sb.from('notifications').insert([{ full_name, email, company, property_name }]);
+  document.getElementById('joinSuccess').style.display = 'block';
+  setTimeout(() => closeModal('joinListModal'), 2000);
+}
+
+loadData();
+</script>
+</body>
+</html>
