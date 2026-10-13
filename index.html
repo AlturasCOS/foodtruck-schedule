@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Food Truck Schedule — Alturas Capital Partners</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<!-- Supabase Client SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --bg: #000000;
@@ -42,30 +44,6 @@ body::before{
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
   opacity:0.35;
 }
-
-/* MAINTENANCE SCREEN STYLES */
-.maintenance-screen {
-  min-height:100vh;
-  display:grid;
-  place-items:center;
-  padding:28px;
-  background:radial-gradient(circle at 50% 20%,#17284d 0,#0d0d1a 42%,#000 100%);
-  text-align:center;
-  color:#fff;
-}
-.maintenance-card {
-  width:min(680px,100%);
-  padding:52px 36px;
-  border:1px solid rgba(74,127,212,.35);
-  border-radius:18px;
-  background:rgba(13,13,26,.86);
-  box-shadow:0 28px 80px rgba(0,0,0,.45);
-}
-.maintenance-logo { width:120px; height:120px; object-fit:contain; margin-bottom:24px; }
-.maintenance-icon { font-size:46px; margin-bottom:12px; }
-.maintenance-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(42px,8vw,68px); letter-spacing:4px; color:#4a7fd4; }
-.maintenance-copy { max-width:520px; margin:12px auto 0; color:#cbd5e1; font-size:16px; line-height:1.65; }
-.maintenance-note { margin-top:22px; color:#8791a5; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; }
 
 /* HEADER */
 header{
@@ -624,12 +602,10 @@ footer{
 </div>
 
 <script>
-const MAINTENANCE_MODE = false;
-
-const SHEET_ID = '1u1g0pz_jI92Eifju4YeNTX6jkmk1MGmDJLsX6h40Bko';
-const API_KEY  = 'AIzaSyAD4pFQpfqcfzqpYeXiUUG8VTP5GCQm-Ok';
-const TAB_NAME = 'Sheet1';
-const CUISINE_TAB = 'Sheet2';
+// SUPABASE NATIVE CONFIGURATION
+const SUPABASE_URL = 'https://xgnhzvjacultlyvioifw.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhnbmh6dmphY3VsdGx5dmlvaWZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE4MTk1NTMsImV4cCI6MjEwNzM5NTU1M30.jddLUkGKhXXEqjeUsZAONYPsEBYsY6nMqgPpNKnWcEI';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const PROPS = [
   { id:'Northcreek',       color:'#2a5298' },
@@ -696,39 +672,33 @@ function selectFilter(type, value, label){
 
 async function loadData() {
   try {
-    // 1. Fetch Sheet2 (Food Trucks & Cuisine Directory)
-    const cuisineRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${CUISINE_TAB}?key=${API_KEY}`);
-    const cuisineData = await cuisineRes.json();
-    if (cuisineRes.ok && cuisineData.values) {
-      cuisineData.values.slice(1).forEach(r => {
-        if (r[0] && r[2]) {
-          cuisineMap[r[0].trim()] = r[2].trim();
-        }
+    // Read directly from Supabase tables
+    const [bookingsRes, directoryRes] = await Promise.all([
+      sb.from('bookings').select('*').order('visit_date', { ascending: true }),
+      sb.from('food_trucks').select('*')
+    ]);
+
+    if (bookingsRes.error) throw new Error(bookingsRes.error.message);
+
+    if (directoryRes.data) {
+      directoryRes.data.forEach(t => {
+        if (t.name) cuisineMap[t.name.trim()] = t.cuisine ? t.cuisine.trim() : '';
       });
     }
 
-    // 2. Fetch Sheet1 (Scheduled Visits)
-    const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${TAB_NAME}?key=${API_KEY}`);
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error?.message || 'Failed to load');
-
-    trucks = (data.values || []).slice(1)
-      .filter(r => r[0] && r[2])
-      .map((r, i) => {
-        const truckName = (r[0] || '').trim();
-        return {
-          id: i + 1,
-          name: truckName,
-          property: (r[1] || '').trim(),
-          date: parseDate(r[2]),
-          time: (r[3] || 'TBD').trim(),
-          cuisine: cuisineMap[truckName] || '',
-          menu: (r[4] || '').trim(),
-          menus: [r[4], r[5], r[6], r[7]]
-            .map(v => (v || '').trim())
-            .filter(Boolean)
-        };
-      });
+    trucks = (bookingsRes.data || []).map((b, i) => {
+      const truckName = (b.truck_name || '').trim();
+      return {
+        id: b.id || i + 1,
+        name: truckName,
+        property: (b.property_name || '').trim(),
+        date: b.visit_date || '',
+        time: (b.time_slot || '11:00 AM - 2:00 PM').trim(),
+        cuisine: b.cuisine || cuisineMap[truckName] || '',
+        menu: (b.menu_url || '').trim(),
+        menus: [b.menu_url].filter(Boolean)
+      };
+    });
 
     document.getElementById('lastUpdated').textContent =
       `Updated ${new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`;
@@ -768,42 +738,6 @@ function populateFilters(){
 }
 
 function iso(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-
-function parseDate(raw){
-  if(!raw) return '';
-  raw=String(raw).trim();
-  if(/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
-  const p=raw.split('/');
-  if(p.length===3){
-    let year = p[2].trim();
-    if(year.length===2) year = `20${year}`;
-    return `${year}-${p[0].padStart(2,'0')}-${p[1].padStart(2,'0')}`;
-  }
-  if(/^\d+$/.test(raw)){
-    const excelEpoch = new Date(Date.UTC(1899, 11, 30));
-    const serialDate = new Date(excelEpoch);
-    serialDate.setUTCDate(excelEpoch.getUTCDate() + Number(raw));
-    return iso(new Date(serialDate.getUTCFullYear(), serialDate.getUTCMonth(), serialDate.getUTCDate()));
-  }
-  const d=new Date(raw); if(!isNaN(d)) return iso(d);
-  return raw;
-}
-
-function driveUrl(url){
-  if(!url) return null;
-  if(url.startsWith('http')&&!url.includes('drive.google.com')) {
-    if(url.includes('admincos.github.io/foodtruck-schedule')) {
-      return url.replace('admincos.github.io/foodtruck-schedule', 'raw.githubusercontent.com/AlturasCOS/foodtruck-schedule/main');
-    }
-    return url;
-  }
-  const m=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  if(m) return `https://drive.google.com/uc?export=view&id=${m[1]}`;
-  if(!url.startsWith('http')) {
-    return `https://raw.githubusercontent.com/AlturasCOS/foodtruck-schedule/main/menus/${url}`;
-  }
-  return url;
-}
 
 function getPropColor(name){return PROPS.find(p=>p.id===name)?.color||'#2a5298';}
 
@@ -994,7 +928,7 @@ function clearDateFilter(){
 }
 
 function cardHtml(t,isToday,isPast){
-  const col=getPropColor(t.property), src=driveUrl((t.menus && t.menus[0]) || t.menu);
+  const col=getPropColor(t.property), src=t.menu;
   return `<div class="truck-card${isToday?' today-card':''}${isPast?' past-card':''}" onclick="openLb(${t.id})">
     <div class="menu-img-wrap">
       <div class="prop-ribbon" style="color:${col}">${t.property}</div>
@@ -1036,10 +970,7 @@ function openLb(id){
   const wrap=document.getElementById('lbImgWrap');
   const actions=document.getElementById('lbActions');
   
-  const menuUrls = (t.menus && t.menus.length)
-    ? t.menus.flatMap(url => url.split('|').map(u => u.trim()).filter(Boolean))
-    : (t.menu ? t.menu.split('|').map(u=>u.trim()).filter(u=>u) : []);
-  currentMenuUrls = menuUrls.map(driveUrl).filter(u=>u);
+  currentMenuUrls = t.menu ? [t.menu] : [];
   
   if(!currentMenuUrls.length){
     wrap.innerHTML='<div class="lb-no-img">No menu image available yet.</div>';
@@ -1054,7 +985,7 @@ function openLb(id){
     wrap.innerHTML=`<a href="${firstUrl}" target="_blank" class="lb-pdf-btn">📄 Open Full Menu (PDF)</a>`;
     actions.style.display='none';
   } else {
-    wrap.innerHTML = currentMenuUrls.map((url,i)=>`<img src="${url}" alt="Menu page ${i+1}" style="width:100%;display:block;${i>0?'margin-top:10px;':''}" onerror="this.style.display='none'"/>`).join('');
+    wrap.innerHTML = `<img src="${firstUrl}" alt="Menu" style="width:100%;display:block;" onerror="this.style.display='none'"/>`;
     actions.style.display='flex';
   }
   
@@ -1063,19 +994,15 @@ function openLb(id){
 
 function downloadMenu(){
   if(!currentMenuUrls.length) return;
-  if(currentMenuUrls.length===1){
-    const url=currentMenuUrls[0];
-    const link=document.createElement('a');
-    link.href=url; link.download=`menu-${Date.now()}.jpg`; link.target='_blank';
-    document.body.appendChild(link); link.click(); document.body.removeChild(link);
-  } else {
-    currentMenuUrls.forEach(url=>window.open(url,'_blank'));
-  }
+  const url=currentMenuUrls[0];
+  const link=document.createElement('a');
+  link.href=url; link.download=`menu-${Date.now()}.jpg`; link.target='_blank';
+  document.body.appendChild(link); link.click(); document.body.removeChild(link);
 }
 
 function openMenuFull(){
   if(!currentMenuUrls.length) return;
-  currentMenuUrls.forEach(url=>window.open(url,'_blank'));
+  window.open(currentMenuUrls[0],'_blank');
 }
 
 function closeLb(e){
@@ -1085,16 +1012,35 @@ function closeLb(e){
   }
 }
 
-function handleRecommendSubmit(e) {
+async function handleRecommendSubmit(e) {
   e.preventDefault();
-  alert("Thank you! Your recommendation has been submitted.");
-  closeModal('recommendModal');
+  const user_name = document.getElementById('recName').value;
+  const user_email = document.getElementById('recEmail').value;
+  const property_name = document.getElementById('recProp').value;
+  const truck_name = document.getElementById('recTruck').value;
+  const truck_link = document.getElementById('recLink').value || 'N/A';
+
+  const { error } = await sb.from('recommendations').insert([{ user_name, user_email, property_name, truck_name, truck_link }]);
+  if(error) alert('Submission failed: ' + error.message);
+  else {
+    document.getElementById('recSuccess').style.display = 'block';
+    setTimeout(() => closeModal('recommendModal'), 2000);
+  }
 }
 
-function handleJoinSubmit(e) {
+async function handleJoinSubmit(e) {
   e.preventDefault();
-  alert("Thank you! You have been added to the notification list.");
-  closeModal('joinListModal');
+  const full_name = document.getElementById('joinName').value;
+  const email = document.getElementById('joinEmail').value;
+  const company = document.getElementById('joinCompany').value;
+  const property_name = document.getElementById('joinProp').value;
+
+  const { error } = await sb.from('notifications').insert([{ full_name, email, company, property_name }]);
+  if(error) alert('Submission failed: ' + error.message);
+  else {
+    document.getElementById('joinSuccess').style.display = 'block';
+    setTimeout(() => closeModal('joinListModal'), 2000);
+  }
 }
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLb();});
