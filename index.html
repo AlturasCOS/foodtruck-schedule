@@ -4,9 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Food Truck Schedule — Alturas Capital Partners</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<!-- Supabase Client SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root {
   --bg: #000000;
@@ -35,43 +33,67 @@ body.light-mode {
   --border: #e5e7eb;
 }
 
-* { margin:0; padding:0; box-sizing:border-box; }
-html { scroll-behavior:smooth; }
-body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-weight:300; min-height:100vh; overflow-x:hidden; transition:background-color .3s, color .3s; }
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;transition:background-color .3s, color .3s;}
 
-body::before {
-  content:''; position:fixed; inset:0; pointer-events:none; z-index:999;
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:999;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
   opacity:0.35;
 }
 
+/* MAINTENANCE SCREEN STYLES */
+.maintenance-screen {
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:28px;
+  background:radial-gradient(circle at 50% 20%,#17284d 0,#0d0d1a 42%,#000 100%);
+  text-align:center;
+  color:#fff;
+}
+.maintenance-card {
+  width:min(680px,100%);
+  padding:52px 36px;
+  border:1px solid rgba(74,127,212,.35);
+  border-radius:18px;
+  background:rgba(13,13,26,.86);
+  box-shadow:0 28px 80px rgba(0,0,0,.45);
+}
+.maintenance-logo { width:120px; height:120px; object-fit:contain; margin-bottom:24px; }
+.maintenance-icon { font-size:46px; margin-bottom:12px; }
+.maintenance-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(42px,8vw,68px); letter-spacing:4px; color:#4a7fd4; }
+.maintenance-copy { max-width:520px; margin:12px auto 0; color:#cbd5e1; font-size:16px; line-height:1.65; }
+.maintenance-note { margin-top:22px; color:#8791a5; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; }
+
 /* HEADER */
-header {
-  background:var(--surface); border-bottom:2px solid var(--border);
-  padding:0 28px; position:sticky; top:0; z-index:200;
-  display:flex; align-items:center; justify-content:space-between; height:68px;
+header{
+  background:var(--surface);border-bottom:2px solid var(--border);
+  padding:0 28px;position:sticky;top:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;height:68px;
 }
-.logo { display:flex; align-items:center; gap:14px; text-decoration:none; }
-.logo-badge { width:44px; height:44px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
-.logo-badge img { width:100%; height:100%; object-fit:contain; filter:brightness(1); }
-body.light-mode .logo-badge img { filter:brightness(0); }
-.logo-main { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:3px; color:var(--text); line-height:1; }
-.logo-sub { font-size:9px; color:var(--muted); letter-spacing:3px; text-transform:uppercase; margin-top:2px; }
-.header-right { display:flex; align-items:center; gap:10px; }
-.last-updated { font-size:10px; color:var(--muted); letter-spacing:1px; }
-.theme-toggle {
-  padding:8px 12px; border-radius:6px; font-family:'DM Sans',sans-serif;
-  font-size:14px; cursor:pointer; border:1px solid var(--border);
-  background:transparent; color:var(--text); transition:all .2s;
+.logo{display:flex;align-items:center;gap:14px;text-decoration:none;}
+.logo-badge{width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.logo-badge img{width:100%;height:100%;object-fit:contain;filter:brightness(1);}
+body.light-mode .logo-badge img{filter:brightness(0);}
+.logo-main{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--text);line-height:1;}
+.logo-sub{font-size:9px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:2px;}
+.header-right{display:flex;align-items:center;gap:10px;}
+.last-updated{font-size:10px;color:var(--muted);letter-spacing:1px;}
+.theme-toggle{
+  padding:8px 12px;border-radius:6px;font-family:'DM Sans',sans-serif;
+  font-size:14px;cursor:pointer;border:1px solid var(--border);
+  background:transparent;color:var(--text);transition:all .2s;
 }
-.theme-toggle:hover { color:var(--accent-light); border-color:var(--accent); }
-.refresh-btn {
-  padding:8px 18px; border-radius:6px; font-family:'DM Sans',sans-serif;
-  font-size:11px; font-weight:600; cursor:pointer; border:1px solid var(--border);
-  background:transparent; color:var(--muted); letter-spacing:1px; text-transform:uppercase;
+.theme-toggle:hover{color:var(--accent-light);border-color:var(--accent);}
+.refresh-btn{
+  padding:8px 18px;border-radius:6px;font-family:'DM Sans',sans-serif;
+  font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);
+  background:transparent;color:var(--muted);letter-spacing:1px;text-transform:uppercase;
   transition:all .2s;
 }
-.refresh-btn:hover { color:var(--accent-light); border-color:var(--accent); }
+.refresh-btn:hover{color:var(--accent-light);border-color:var(--accent);}
 
 /* ACTION BUTTONS */
 .recommend-btn, .join-list-btn {
@@ -85,136 +107,305 @@ body.light-mode .logo-badge img { filter:brightness(0); }
 .join-list-btn:hover { border-color: var(--accent3); color: var(--accent3); }
 
 /* HERO */
-.hero {
+.hero{
   background:linear-gradient(135deg,var(--bg) 0%,var(--card) 50%,var(--bg) 100%);
-  padding:48px 28px 40px; position:relative; overflow:hidden;
-  display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:center;
+  padding:48px 28px 40px;position:relative;overflow:hidden;
+  display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center;
 }
-@media(max-width:860px){ .hero { grid-template-columns:1fr; } }
-.hero::after { content:'🚚'; font-size:200px; position:absolute; right:-20px; bottom:-40px; opacity:.04; transform:scaleX(-1); pointer-events:none; }
-.hero-eyebrow { font-size:10px; letter-spacing:4px; text-transform:uppercase; color:var(--accent-light); margin-bottom:14px; }
-.hero-rule { width:36px; height:2px; background:var(--accent); margin-bottom:18px; }
-.hero h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(40px,6vw,72px); letter-spacing:4px; line-height:1; }
-.hero h1 span { color:var(--accent-light); }
-.hero-sub { color:var(--muted); margin-top:12px; font-size:13px; max-width:420px; }
-.hero-stats { display:flex; gap:32px; margin-top:32px; flex-wrap:wrap; }
-.hstat { border-left:2px solid var(--border); padding-left:16px; }
-.hstat-num { font-family:'Bebas Neue',sans-serif; font-size:32px; color:var(--accent-light); line-height:1; }
-.hstat-lbl { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-top:2px; }
+@media(max-width:860px){.hero{grid-template-columns:1fr;}}
+.hero::after{content:'🚚';font-size:200px;position:absolute;right:-20px;bottom:-40px;opacity:.04;transform:scaleX(-1);pointer-events:none;}
+.hero-eyebrow{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--accent-light);margin-bottom:14px;}
+.hero-rule{width:36px;height:2px;background:var(--accent);margin-bottom:18px;}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,6vw,72px);letter-spacing:4px;line-height:1;}
+.hero h1 span{color:var(--accent-light);}
+.hero-sub{color:var(--muted);margin-top:12px;font-size:13px;max-width:420px;}
+.hero-stats{display:flex;gap:32px;margin-top:32px;flex-wrap:wrap;}
+.hstat{border-left:2px solid var(--border);padding-left:16px;}
+.hstat-num{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--accent-light);line-height:1;}
+.hstat-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:2px;}
 
 /* TODAY PANEL */
-.today-panel {
-  background:rgba(42,82,152,0.08); border:1px solid rgba(42,82,152,0.3);
-  border-radius:var(--radius); padding:24px 28px;
-  position:relative; z-index:1; min-height:220px; display:flex; flex-direction:column;
+.today-panel{
+  background:rgba(42,82,152,0.08);
+  border:1px solid rgba(42,82,152,0.3);
+  border-radius:var(--radius);padding:24px 28px;
+  position:relative;z-index:1;min-height:220px;
+  display:flex;flex-direction:column;
 }
-body.light-mode .today-panel { background:rgba(30,58,138,0.08); border:1px solid rgba(30,58,138,0.2); }
-.today-panel-head { display:flex; align-items:center; gap:12px; margin-bottom:18px; }
-.today-dot { width:10px; height:10px; border-radius:50%; background:var(--accent3); animation:pulse 2s infinite; flex-shrink:0; }
-@keyframes pulse { 0%,100%{ opacity:1; transform:scale(1); box-shadow:0 0 0 0 rgba(62,207,142,0.7); } 50%{ opacity:1; transform:scale(1); box-shadow:0 0 0 6px rgba(62,207,142,0); } }
-.today-label { font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--accent3); font-weight:700; }
-.today-date { font-size:11px; color:var(--muted); margin-left:auto; letter-spacing:1px; }
-.today-trucks { display:flex; flex-direction:column; gap:12px; flex:1; }
-.today-truck-item {
-  display:flex; align-items:center; gap:14px; padding:14px 16px; border-radius:8px;
-  background:rgba(42,82,152,0.1); border:1px solid rgba(42,82,152,0.2);
-  cursor:pointer; transition:all .2s;
+body.light-mode .today-panel{
+  background:rgba(30,58,138,0.08);
+  border:1px solid rgba(30,58,138,0.2);
 }
-body.light-mode .today-truck-item { background:rgba(30,58,138,0.08); border:1px solid rgba(30,58,138,0.15); }
-.today-truck-item:hover { background:rgba(42,82,152,0.15); border-color:rgba(42,82,152,0.4); transform:translateX(4px); }
-.today-truck-icon { font-size:24px; flex-shrink:0; }
-.today-truck-name { font-family:'Bebas Neue',sans-serif; font-size:19px; letter-spacing:1px; color:var(--text); line-height:1; }
-.today-truck-meta { font-size:12px; color:var(--muted); margin-top:3px; }
-.today-truck-prop { font-size:11px; font-weight:600; margin-top:2px; text-transform:uppercase; letter-spacing:1px; color:var(--accent-light); }
-.today-empty { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--muted); text-align:center; gap:8px; }
-.today-empty-icon { font-size:32px; opacity:.2; }
-.today-empty-txt { font-size:12px; letter-spacing:1px; }
+.today-panel-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.today-dot{width:10px;height:10px;border-radius:50%;background:var(--accent3);animation:pulse 2s infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);box-shadow:0 0 0 0 rgba(62,207,142,0.7);}50%{opacity:1;transform:scale(1);box-shadow:0 0 0 6px rgba(62,207,142,0);}}
+.today-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent3);font-weight:700;}
+.today-date{font-size:11px;color:var(--muted);margin-left:auto;letter-spacing:1px;}
+.today-trucks{display:flex;flex-direction:column;gap:12px;flex:1;}
+.today-truck-item{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 16px;border-radius:8px;
+  background:rgba(42,82,152,0.1);border:1px solid rgba(42,82,152,0.2);
+  cursor:pointer;transition:all .2s;
+}
+body.light-mode .today-truck-item{
+  background:rgba(30,58,138,0.08);border:1px solid rgba(30,58,138,0.15);
+}
+.today-truck-item:hover{
+  background:rgba(42,82,152,0.15);border-color:rgba(42,82,152,0.4);
+  transform:translateX(4px);
+}
+.today-truck-icon{font-size:24px;flex-shrink:0;}
+.today-truck-name{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:1px;color:var(--text);line-height:1;}
+.today-truck-meta{font-size:12px;color:var(--muted);margin-top:3px;}
+.today-truck-prop{font-size:11px;font-weight:600;margin-top:2px;text-transform:uppercase;letter-spacing:1px;}
+.today-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);text-align:center;gap:8px;}
+.today-empty-icon{font-size:32px;opacity:.2;}
+.today-empty-txt{font-size:12px;letter-spacing:1px;}
 
 /* FILTER SECTION */
-.filter-section {
-  background:var(--surface); border-bottom:1px solid var(--border);
-  padding:20px 28px; display:flex; align-items:center; justify-content:center; gap:24px; flex-wrap:wrap;
+.filter-section{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:20px 28px;display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;
 }
-.filter-group { position:relative; display:inline-block; min-width:160px; }
-.filter-btn {
-  width:100%; padding:10px 14px; border-radius:6px; background:var(--card); border:1px solid var(--border);
-  color:var(--text); font-family:'DM Sans',sans-serif; font-size:11px; font-weight:600;
-  letter-spacing:1px; text-transform:uppercase; cursor:pointer; transition:all .2s;
-  display:flex; align-items:center; justify-content:space-between;
+.filter-group{
+  position:relative;
+  display:inline-block;
+  min-width:160px;
 }
-.filter-btn:hover { border-color:var(--accent); color:var(--accent-light); }
-.filter-dropdown {
-  display:none; position:absolute; top:100%; left:0; right:0; background:var(--card);
-  border:1px solid var(--border); border-radius:6px; margin-top:4px; z-index:300;
-  max-height:300px; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,0.3);
+.filter-btn{
+  width:100%;padding:10px 14px;border-radius:6px;
+  background:var(--card);border:1px solid var(--border);
+  color:var(--text);font-family:'DM Sans',sans-serif;font-size:11px;
+  font-weight:600;letter-spacing:1px;text-transform:uppercase;
+  cursor:pointer;transition:all .2s;display:flex;align-items:center;
+  justify-content:space-between;
 }
-body.light-mode .filter-dropdown { box-shadow:0 4px 12px rgba(0,0,0,0.1); }
-.filter-dropdown.open { display:block; }
-.filter-option {
-  padding:12px 14px; cursor:pointer; font-size:11px; color:var(--text);
-  border-bottom:1px solid var(--border); transition:all .15s;
+.filter-btn:hover{border-color:var(--accent);color:var(--accent-light);}
+.filter-dropdown{
+  display:none;position:absolute;top:100%;left:0;right:0;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:6px;margin-top:4px;z-index:300;
+  max-height:300px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,0.3);
 }
-.filter-option:hover { background:var(--surface); color:var(--accent-light); }
-.filter-option.selected { background:rgba(42,82,152,0.2); color:var(--accent-light); font-weight:600; }
-body.light-mode .filter-option.selected { background:rgba(30,58,138,0.15); }
-.filter-option:last-child { border-bottom:none; }
+body.light-mode .filter-dropdown{
+  box-shadow:0 4px 12px rgba(0,0,0,0.1);
+}
+.filter-dropdown.open{display:block;}
+.filter-option{
+  padding:12px 14px;cursor:pointer;font-size:11px;color:var(--text);
+  border-bottom:1px solid var(--border);transition:all .15s;
+}
+.filter-option:hover{background:var(--surface);color:var(--accent-light);}
+.filter-option.selected{background:rgba(42,82,152,0.2);color:var(--accent-light);font-weight:600;}
+body.light-mode .filter-option.selected{background:rgba(30,58,138,0.15);}
+.filter-option:last-child{border-bottom:none;}
 
 /* LAYOUT */
-.layout { display:grid; grid-template-columns:300px 1fr; }
+.layout{display:grid;grid-template-columns:300px 1fr;}
 @media(max-width:900px){
-  .layout { grid-template-columns:1fr; }
-  .sidebar { position:static!important; border-right:none; border-bottom:1px solid var(--border); }
-  header,.hero,.filter-section,.content { padding-left:16px; padding-right:16px; }
+  .layout{grid-template-columns:1fr;}
+  .sidebar{position:static!important;border-right:none;border-bottom:1px solid var(--border);}
+  header,.hero,.filter-section,.content{padding-left:16px;padding-right:16px;}
 }
 
 /* SIDEBAR */
-.sidebar { background:var(--surface); border-right:1px solid var(--border); position:sticky; top:117px; height:fit-content; padding:24px 0; }
-.sb-section { padding:0 22px; margin-bottom:24px; }
-.sb-label { font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--muted); margin-bottom:14px; display:flex; align-items:center; gap:10px; }
-.sb-label::after { content:''; flex:1; height:1px; background:var(--border); }
+.sidebar{
+  background:var(--surface);border-right:1px solid var(--border);
+  position:sticky;top:117px;height:fit-content;padding:24px 0;
+}
+.sb-section{padding:0 22px;margin-bottom:24px;}
+.sb-label{
+  font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);
+  margin-bottom:14px;display:flex;align-items:center;gap:10px;
+}
+.sb-label::after{content:'';flex:1;height:1px;background:var(--border);}
 
-/* CALENDAR */
-.cal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-.cal-month { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:2px; color:var(--accent-light); }
-.cal-nav-btn { background:transparent; border:1px solid var(--border); color:var(--text); width:32px; height:32px; border-radius:4px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; transition:all .15s; }
-.cal-nav-btn:hover { border-color:var(--accent); color:var(--accent-light); }
-.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
-.cal-day-label { text-align:center; font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); padding:4px 0 10px; }
-.cal-day { aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:13px; cursor:pointer; position:relative; transition:all .12s; font-weight:500; color:var(--muted); }
-.cal-day:hover:not(.empty) { background:var(--border); color:var(--text); }
-.cal-day.empty { cursor:default; pointer-events:none; }
-.cal-day.today { color:var(--accent-light); font-weight:700; background:rgba(42,82,152,0.15); }
-body.light-mode .cal-day.today { background:rgba(30,58,138,0.12); }
-.cal-day.has-event { color:var(--text); }
-.cal-day.has-event::after { content:''; position:absolute; bottom:3px; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:var(--accent-light); }
-.cal-day.selected { background:var(--accent)!important; color:#fff!important; font-weight:700; }
+/* Calendar */
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.cal-month{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--accent-light);}
+.cal-nav-btn{
+  background:transparent;border:1px solid var(--border);color:var(--text);
+  width:32px;height:32px;border-radius:4px;cursor:pointer;font-size:16px;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+}
+.cal-nav-btn:hover{border-color:var(--accent);color:var(--accent-light);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-day-label{text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:4px 0 10px;}
+.cal-day{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  border-radius:6px;font-size:13px;cursor:pointer;position:relative;
+  transition:all .12s;font-weight:500;color:var(--muted);
+}
+.cal-day:hover:not(.empty){background:var(--border);color:var(--text);}
+.cal-day.empty{cursor:default;pointer-events:none;}
+.cal-day.today{color:var(--accent-light);font-weight:700;background:rgba(42,82,152,0.15);}
+body.light-mode .cal-day.today{background:rgba(30,58,138,0.12);}
+.cal-day.has-event{color:var(--text);}
+.cal-day.has-event::after{
+  content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);
+  width:4px;height:4px;border-radius:50%;background:var(--accent-light);
+}
+.cal-day.in-week{background:rgba(42,82,152,0.07);}
+body.light-mode .cal-day.in-week{background:rgba(30,58,138,0.08);}
+.cal-day.selected{background:var(--accent)!important;color:#fff!important;font-weight:700;}
+.cal-day.selected::after{background:rgba(255,255,255,.5)!important;}
 
-/* LEGEND & UPCOMING */
-.upcoming-items { display:flex; flex-direction:column; }
-.upcoming-item { display:flex; gap:10px; align-items:flex-start; padding:10px 22px; cursor:pointer; transition:all .2s; border-left:2px solid transparent; }
-.upcoming-item:hover { background:var(--card); border-left-color:var(--accent); transform:translateX(2px); }
-.upcoming-badge { border-radius:4px; padding:4px 8px; text-align:center; flex-shrink:0; min-width:40px; background:var(--accent); }
-.upcoming-badge .uday { font-family:'Bebas Neue',sans-serif; font-size:22px; line-height:1; color:#fff; }
-.upcoming-badge .umon { font-size:8px; text-transform:uppercase; letter-spacing:1px; font-weight:700; color:rgba(255,255,255,.65); }
-.upcoming-name { font-size:12px; font-weight:600; color:var(--text); line-height:1.2; }
-.upcoming-prop { font-size:10px; color:var(--muted); margin-top:2px; }
+/* Legend */
+.legend{display:flex;flex-direction:column;gap:8px;}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);}
+.legend-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.legend-count{margin-left:auto;font-size:11px;color:var(--accent-light);font-weight:600;}
+
+/* Upcoming sidebar */
+.upcoming-items{display:flex;flex-direction:column;}
+.upcoming-item{
+  display:flex;gap:10px;align-items:flex-start;
+  padding:10px 22px;cursor:pointer;transition:all .2s;
+  border-left:2px solid transparent;
+}
+.upcoming-item:hover{background:var(--card);border-left-color:var(--accent);transform:translateX(2px);}
+.upcoming-badge{border-radius:4px;padding:4px 8px;text-align:center;flex-shrink:0;min-width:40px;}
+.upcoming-badge .uday{font-family:'Bebas Neue',sans-serif;font-size:22px;line-height:1;color:#fff;}
+.upcoming-badge .umon{font-size:8px;text-transform:uppercase;letter-spacing:1px;font-weight:700;color:rgba(255,255,255,.65);}
+.upcoming-name{font-size:12px;font-weight:600;color:var(--text);line-height:1.2;}
+.upcoming-prop{font-size:10px;color:var(--muted);margin-top:2px;}
 
 /* CONTENT */
-.content { padding:28px 32px 60px; }
-.trucks-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; }
-.truck-card { background:var(--card); border-radius:var(--radius); border:1px solid var(--border); overflow:hidden; transition:all .25s; cursor:pointer; }
-.truck-card:hover { transform:translateY(-4px); border-color:var(--accent); box-shadow:0 12px 40px rgba(42,82,152,.18); }
-.menu-img-wrap { aspect-ratio:3/4; background:var(--border); overflow:hidden; position:relative; }
-.menu-img-wrap img { width:100%; height:100%; object-fit:cover; transition:transform .35s; display:block; filter:brightness(.9); }
-.truck-card:hover .menu-img-wrap img { transform:scale(1.05); filter:brightness(1); }
-.card-body { padding:14px 16px 16px; }
-.card-name { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:1px; line-height:1.1; margin-bottom:10px; color:#fff; }
-.card-property { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; font-weight:600; }
-.card-date { font-size:12px; color:var(--accent-light); font-weight:600; }
-.card-time { font-size:11px; color:var(--muted); margin-top:3px; }
+.content{padding:28px 32px 60px;}
+.content-main-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;margin-bottom:24px;}
+.content-main-title span{color:var(--accent-light);}
 
-.spinner { width:28px; height:28px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 1s linear infinite; margin:0 auto 14px; }
-@keyframes spin { to { transform:rotate(360deg) } }
+/* Section headers */
+.section-head{display:flex;align-items:center;gap:12px;margin-bottom:16px;margin-top:32px;flex-wrap:wrap;}
+.section-head:first-of-type{margin-top:0;}
+.section-badge{
+  font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:600;
+  padding:4px 12px;border-radius:20px;flex-shrink:0;
+}
+.badge-week{background:rgba(42,82,152,0.2);color:var(--accent-light);border:1px solid rgba(42,82,152,0.3);}
+body.light-mode .badge-week{background:rgba(30,58,138,0.15);border:1px solid rgba(30,58,138,0.2);}
+.badge-future{background:rgba(58,175,100,0.15);color:var(--accent3);border:1px solid rgba(58,175,100,0.25);}
+body.light-mode .badge-future{background:rgba(5,150,105,0.12);border:1px solid rgba(5,150,105,0.2);}
+.badge-past{background:rgba(90,96,112,0.15);color:var(--muted);border:1px solid rgba(90,96,112,0.2);}
+body.light-mode .badge-past{background:rgba(107,114,128,0.1);border:1px solid rgba(107,114,128,0.15);}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--text);}
+.section-count{font-size:11px;color:var(--muted);margin-left:auto;}
+
+/* Past toggle */
+.past-toggle{
+  display:flex;align-items:center;gap:12px;
+  cursor:pointer;padding:14px 18px;border-radius:10px;
+  border:1px solid var(--border);background:var(--surface);
+  transition:all .2s;width:100%;text-align:left;margin-top:32px;
+}
+.past-toggle:hover{border-color:var(--muted);}
+.past-arrow{font-size:12px;color:var(--muted);transition:transform .25s;margin-left:auto;}
+.past-toggle.open .past-arrow{transform:rotate(180deg);}
+.past-content{display:none;margin-top:16px;}
+.past-content.open{display:block;}
+
+/* TRUCKS GRID */
+.trucks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;}
+.truck-card{
+  background:var(--card);border-radius:var(--radius);border:1px solid var(--border);
+  overflow:hidden;transition:all .25s;cursor:pointer;
+}
+.truck-card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 12px 40px rgba(42,82,152,.18);}
+body.light-mode .truck-card:hover{box-shadow:0 12px 40px rgba(30,58,138,.15);}
+.truck-card.today-card{border-color:rgba(42,82,152,0.5);box-shadow:0 0 24px rgba(42,82,152,.12);}
+body.light-mode .truck-card.today-card{border-color:rgba(30,58,138,0.4);box-shadow:0 0 24px rgba(30,58,138,.1);}
+.truck-card.past-card{opacity:.65;}
+.truck-card.past-card:hover{opacity:1;}
+.menu-img-wrap{aspect-ratio:3/4;background:var(--border);overflow:hidden;position:relative;}
+.menu-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .35s;display:block;filter:brightness(.9);}
+.truck-card:hover .menu-img-wrap img{transform:scale(1.05);filter:brightness(1);}
+.menu-placeholder{
+  width:100%;height:100%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:10px;
+  background:linear-gradient(135deg,var(--surface),var(--border));color:var(--muted);
+}
+.ph-icon{font-size:40px;opacity:.2;}
+.ph-text{font-size:9px;text-transform:uppercase;letter-spacing:3px;}
+.zoom-hint{
+  position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.7);
+  color:var(--accent-light);font-size:16px;width:30px;height:30px;
+  border-radius:6px;display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .2s;
+}
+body.light-mode .zoom-hint{background:rgba(0,0,0,.5);}
+.truck-card:hover .zoom-hint{opacity:1;}
+.prop-ribbon{
+  position:absolute;top:10px;left:0;
+  padding:3px 12px 3px 10px;font-size:9px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;
+  background:rgba(0,0,0,.82);backdrop-filter:blur(6px);color:#fff;
+}
+.today-pill{
+  position:absolute;top:10px;right:10px;
+  background:var(--accent);color:#fff;
+  font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:3px 8px;border-radius:20px;
+}
+.card-body{padding:14px 16px 16px;}
+.card-day-tag{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+.card-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;line-height:1.1;margin-bottom:10px;}
+.card-divider{height:1px;background:var(--border);margin-bottom:10px;}
+.card-property{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-weight:600;}
+.card-date{font-size:12px;color:var(--accent-light);font-weight:600;}
+.card-time{font-size:11px;color:var(--muted);margin-top:3px;}
+
+/* States */
+.empty-section{
+  padding:36px 20px;text-align:center;color:var(--muted);
+  border:1px dashed var(--border);border-radius:var(--radius);
+}
+.empty-section .ei{font-size:30px;opacity:.15;margin-bottom:10px;}
+.empty-section .em{font-size:13px;}
+.loading-state{padding:60px;text-align:center;}
+.spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 14px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* LIGHTBOX */
+.lightbox{
+  position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.95);
+  display:none;align-items:center;justify-content:center;padding:20px;
+  backdrop-filter:blur(10px);
+}
+body.light-mode .lightbox{background:rgba(0,0,0,.92);}
+.lightbox.open{display:flex;}
+.lb-inner{position:relative;max-width:560px;width:100%;max-height:90vh;display:flex;flex-direction:column;animation:lbIn .25s ease;}
+@keyframes lbIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+.lb-img-wrap{overflow-y:auto;border-radius:8px;border:1px solid var(--border);flex:1;max-height:70vh;}
+.lb-img{width:100%;display:block;}
+.lb-no-img{padding:60px;text-align:center;color:var(--muted);font-size:14px;}
+.lb-pdf-viewer{width:100%;height:70vh;border:none;border-radius:8px;}
+.lb-pdf-btn{
+  display:block;width:100%;padding:20px;
+  background:linear-gradient(135deg,var(--accent),#1a4a6b);
+  color:#fff;text-align:center;font-family:'Bebas Neue',sans-serif;
+  font-size:20px;letter-spacing:2px;border-radius:8px;
+  text-decoration:none;transition:all .2s;
+}
+.lb-pdf-btn:hover{transform:scale(1.02);}
+.lb-close{
+  position:absolute;top:-12px;right:-12px;background:var(--accent2);
+  color:#fff;border:none;width:28px;height:28px;border-radius:50%;
+  font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;
+}
+.lb-info{margin-top:14px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-shrink:0;padding:0 14px;}
+.lb-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#fff;}
+.lb-prop{font-size:10px;color:#ccc;letter-spacing:2px;text-transform:uppercase;margin-top:3px;}
+.lb-date{text-align:right;font-size:12px;color:#ccc;font-weight:600;}
+.lb-actions{margin-top:12px;display:flex;gap:10px;flex-shrink:0;padding:0 14px;}
+.lb-btn{
+  flex:1;padding:10px 16px;border-radius:6px;
+  font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:1px;text-transform:uppercase;cursor:pointer;
+  border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);
+  color:#fff;transition:all .2s;text-align:center;
+}
+.lb-btn:hover{border-color:var(--accent-light);background:rgba(42,82,152,.2);color:#fff;}
 
 /* MODALS */
 .modal-overlay { position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,.85); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:20px; }
@@ -229,10 +420,27 @@ body.light-mode .cal-day.today { background:rgba(30,58,138,0.12); }
 .form-submit-btn { width:100%; padding:12px; border-radius:6px; margin-top:8px; background:var(--accent); border:none; color:#fff; font-family:'Bebas Neue', sans-serif; font-size:18px; letter-spacing:2px; cursor:pointer; }
 .form-success-msg { padding:14px; border-radius:6px; background:rgba(62,207,142,0.15); border:1px solid var(--accent3); color:var(--accent3); font-size:13px; text-align:center; margin-top:16px; }
 
-footer { background:var(--surface); border-top:1px solid var(--border); padding:24px 28px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
-.footer-copy { font-size:10px; color:var(--muted); letter-spacing:1px; }
-.footer-note { font-size:11px; color:var(--muted); }
-.footer-note a { color:var(--accent-light); text-decoration:none; }
+/* FOOTER */
+footer{
+  background:var(--surface);border-top:1px solid var(--border);
+  padding:24px 28px;display:flex;align-items:center;
+  justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.footer-copy{font-size:10px;color:var(--muted);letter-spacing:1px;}
+.footer-note{font-size:11px;color:var(--muted);}
+.footer-note a{color:var(--accent-light);text-decoration:none;}
+.footer-note a:hover{text-decoration:underline;}
+
+.error-banner{
+  background:rgba(232,69,69,.08);border:1px solid rgba(232,69,69,.25);
+  border-radius:8px;padding:14px 18px;margin-bottom:20px;
+  font-size:13px;color:#f08080;display:none;line-height:1.6;
+}
+.error-banner.show{display:block;}
+
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
 </style>
 </head>
 <body>
@@ -249,15 +457,16 @@ footer { background:var(--surface); border-top:1px solid var(--border); padding:
       </div>
     </a>
     <div class="header-right">
+      <span class="last-updated" id="lastUpdated"></span>
       <button class="recommend-btn" onclick="openRecommendModal()">+ Recommend Truck</button>
       <button class="join-list-btn" onclick="openJoinListModal()">+ Join Schedule List</button>
-      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">☀️ / 🌙</button>
+      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">☀️ / 🌙</button>
       <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
     </div>
   </header>
 
   <div class="hero">
-    <div>
+    <div class="hero-left">
       <div class="hero-eyebrow">Tenant Amenity Program</div>
       <div class="hero-rule"></div>
       <h1>Food Truck<br/><span>Visit Schedule</span></h1>
@@ -269,7 +478,7 @@ footer { background:var(--surface); border-top:1px solid var(--border); padding:
       </div>
     </div>
 
-    <div class="today-panel">
+    <div class="today-panel" id="todayPanel">
       <div class="today-panel-head">
         <div class="today-dot"></div>
         <div class="today-label">On Site Today</div>
@@ -284,24 +493,31 @@ footer { background:var(--surface); border-top:1px solid var(--border); padding:
   <div class="filter-section">
     <div class="filter-group">
       <button class="filter-btn" onclick="toggleDropdown('propDrop')">
-        <span id="propLabel">All Properties</span><span>▼</span>
+        <span id="propLabel">All Properties</span>
+        <span>▼</span>
       </button>
       <div class="filter-dropdown" id="propDrop">
-        <div class="filter-option selected" onclick="selectFilter('prop', 'all', 'All Properties')">All Properties</div>
-        <div class="filter-option" onclick="selectFilter('prop', 'Northcreek', 'Northcreek')">Northcreek</div>
-        <div class="filter-option" onclick="selectFilter('prop', '985 Space Center', '985 Space Center')">985 Space Center</div>
-        <div class="filter-option" onclick="selectFilter('prop', '1055 Newport', '1055 Newport')">1055 Newport</div>
-        <div class="filter-option" onclick="selectFilter('prop', 'Garden Gateway', 'Garden Gateway')">Garden Gateway</div>
-        <div class="filter-option" onclick="selectFilter('prop', 'Presidio', 'Presidio')">Presidio</div>
+        <div class="filter-option selected" data-value="all" onclick="selectFilter('prop', 'all', 'All Properties')">All Properties</div>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <button class="filter-btn" onclick="toggleDropdown('cuisineDrop')">
+        <span id="cuisineLabel">All Cuisines</span>
+        <span>▼</span>
+      </button>
+      <div class="filter-dropdown" id="cuisineDrop">
+        <div class="filter-option selected" data-value="all" onclick="selectFilter('cuisine', 'all', 'All Cuisines')">All Cuisines</div>
       </div>
     </div>
 
     <div class="filter-group">
       <button class="filter-btn" onclick="toggleDropdown('truckDrop')">
-        <span id="truckLabel">All Food Trucks</span><span>▼</span>
+        <span id="truckLabel">All Food Trucks</span>
+        <span>▼</span>
       </button>
       <div class="filter-dropdown" id="truckDrop">
-        <div class="filter-option selected" onclick="selectFilter('truck', 'all', 'All Food Trucks')">All Food Trucks</div>
+        <div class="filter-option selected" data-value="all" onclick="selectFilter('truck', 'all', 'All Food Trucks')">All Food Trucks</div>
       </div>
     </div>
   </div>
@@ -318,20 +534,41 @@ footer { background:var(--surface); border-top:1px solid var(--border); padding:
         <div class="cal-grid" id="calGrid"></div>
       </div>
       <div class="sb-section">
-        <div class="sb-label">Coming Up</div>
-        <div class="upcoming-items" id="upcomingList"></div>
+        <div class="sb-label">Properties</div>
+        <div class="legend" id="legend"></div>
       </div>
+      <div class="sb-section"><div class="sb-label">Coming Up</div></div>
+      <div class="upcoming-items" id="upcomingList"></div>
     </aside>
 
     <main class="content">
+      <div class="error-banner" id="errorBanner"></div>
       <div id="mainContent"><div class="loading-state"><div class="spinner"></div></div></div>
     </main>
   </div>
 
   <footer>
     <div class="footer-copy">© Alturas Capital Partners · Colorado Springs, Colorado</div>
-    <div class="footer-note">Suggest a food truck: <a href="mailto:admincos@alturas.com">admincos@alturas.com</a></div>
+    <div class="footer-note">Want to suggest a food truck? Email us at <a href="mailto:admincos@alturas.com">admincos@alturas.com</a></div>
   </footer>
+
+  <div class="lightbox" id="lightbox" onclick="closeLb(event)">
+    <div class="lb-inner">
+      <button class="lb-close" onclick="closeLb()">×</button>
+      <div class="lb-img-wrap" id="lbImgWrap">
+        <img class="lb-img" id="lbImg" src="" alt="" style="display:none"/>
+        <div class="lb-no-img" id="lbNoImg" style="display:none">No menu image available yet.</div>
+      </div>
+      <div class="lb-info">
+        <div><div class="lb-name" id="lbName"></div><div class="lb-prop" id="lbProp"></div></div>
+        <div class="lb-date" id="lbDate"></div>
+      </div>
+      <div class="lb-actions" id="lbActions" style="display:none;">
+        <button class="lb-btn" onclick="downloadMenu()">⬇ Download Menu</button>
+        <button class="lb-btn" onclick="openMenuFull()">↗ Open Full Size</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- MODALS -->
@@ -387,218 +624,498 @@ footer { background:var(--surface); border-top:1px solid var(--border); padding:
 </div>
 
 <script>
-const SUPABASE_URL = 'https://xgnhzvjacultlyvioifw.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhnbmh6dmphY3VsdGx5dmlvaWZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE4MTk1NTMsImV4cCI6MjEwNzM5NTU1M30.jddLUkGKhXXEqjeUsZAONYPsEBYsY6nMqgPpNKnWcEI';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+/*
+  MAINTENANCE SWITCH
+  true  = show maintenance page
+  false = show live food truck website
+*/
+const MAINTENANCE_MODE = false;
 
-let allBookings = [];
-let filterProp = 'all';
-let filterTruck = 'all';
-let calDate = new Date();
+const SHEET_ID = '1u1g0pz_jI92Eifju4YeNTX6jkmk1MGmDJLsX6h40Bko';
+const API_KEY  = 'AIzaSyAD4pFQpfqcfzqpYeXiUUG8VTP5GCQm-Ok';
+const TAB_NAME = 'Sheet1';
+const CUISINE_TAB = 'Sheet2';
+const LOGO_URL = 'https://raw.githubusercontent.com/AlturasCOS/foodtruck-schedule/main/acp.png';
 
-function toggleTheme() { document.body.classList.toggle('light-mode'); }
-function toggleDropdown(id) { document.getElementById(id).classList.toggle('open'); }
+const PROPS = [
+  { id:'Northcreek',       color:'#2a5298' },
+  { id:'985 Space Center', color:'#1a6b8a' },
+  { id:'1055 Newport',     color:'#2a6b4a' },
+  { id:'Garden Gateway',   color:'#4a3a7a' },
+  { id:'Presidio',         color:'#1a4a6b' },
+];
+
+let trucks = [], cuisineMap = {}, filterProp = 'all', filterCuisine = 'all', filterTruck = 'all', filterDate = null, calYear, calMonth;
+
+const now = new Date(); now.setHours(0,0,0,0);
+const todayStr = iso(now);
+
 function openRecommendModal() { document.getElementById('recommendModal').classList.add('open'); }
 function openJoinListModal() { document.getElementById('joinListModal').classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-async function loadData() {
-  document.getElementById('mainContent').innerHTML = '<div class="loading-state"><div class="spinner"></div></div>';
-  
-  try {
-    const { data, error } = await sb.from('bookings').select('*').order('visit_date', { ascending: true });
-    if (error) {
-      document.getElementById('mainContent').innerHTML = `<div style="text-align:center; color:var(--accent2); padding:40px;">Failed to load schedule: ${error.message}</div>`;
-      return;
-    }
-
-    allBookings = data || [];
-    renderStats();
-    renderToday();
-    renderCalendar();
-    renderUpcoming();
-    renderGrid();
-    populateTruckFilter();
-  } catch (err) {
-    document.getElementById('mainContent').innerHTML = `<div style="text-align:center; color:var(--accent2); padding:40px;">Error loading data: ${err.message}</div>`;
-  }
+function renderMaintenance() {
+  document.title = 'Scheduled Maintenance | Alturas Capital Partners';
+  document.getElementById('app').innerHTML = `
+    <main class="maintenance-screen">
+      <section class="maintenance-card" aria-labelledby="maintenanceTitle">
+        <img class="maintenance-logo" src="${LOGO_URL}" alt="Alturas Capital Partners logo">
+        <div class="maintenance-icon" aria-hidden="true">🚧</div>
+        <h1 class="maintenance-title" id="maintenanceTitle">Scheduled Maintenance</h1>
+        <p class="maintenance-copy">
+          The Alturas Capital Partners Food Truck Schedule is temporarily unavailable while updates are being completed.
+        </p>
+        <p class="maintenance-note">Please check back again soon</p>
+      </section>
+    </main>`;
 }
 
-function renderStats() {
-  const todayIso = new Date().toISOString().split('T')[0];
-  const upcoming = allBookings.filter(b => b.visit_date >= todayIso);
-  const trucksSet = new Set(allBookings.map(b => b.truck_name));
-
-  const statVisits = document.getElementById('statVisits');
-  const statTrucks = document.getElementById('statTrucks');
-  const todayDateLabel = document.getElementById('todayDateLabel');
-
-  if (statVisits) statVisits.textContent = upcoming.length;
-  if (statTrucks) statTrucks.textContent = trucksSet.size;
-  if (todayDateLabel) todayDateLabel.textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+function getWeekBounds() {
+  const d = new Date(now), day = d.getDay();
+  const mon = new Date(d); mon.setDate(d.getDate() - (day===0?6:day-1));
+  const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+  return { start:iso(mon), end:iso(sun) };
 }
 
-function renderToday() {
-  const todayIso = new Date().toISOString().split('T')[0];
-  const todayVisits = allBookings.filter(b => b.visit_date === todayIso);
-  const container = document.getElementById('todayTrucks');
-
-  if (!container) return;
-
-  if (!todayVisits.length) {
-    container.innerHTML = '<div class="today-empty"><div class="today-empty-icon">🚚</div><div class="today-empty-txt">No food trucks scheduled on site today.</div></div>';
-    return;
-  }
-
-  container.innerHTML = todayVisits.map(v => `
-    <div class="today-truck-item">
-      <div class="today-truck-icon">🚚</div>
-      <div>
-        <div class="today-truck-name">${v.truck_name}</div>
-        <div class="today-truck-prop">${v.property_name}</div>
-        <div class="today-truck-meta">${v.time_slot || '11:00 AM - 2:00 PM'}</div>
-      </div>
-    </div>
-  `).join('');
+function toggleTheme(){
+  document.body.classList.toggle('light-mode');
+  localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
 }
 
-function selectFilter(type, value, label) {
-  if (type === 'prop') {
+function toggleDropdown(id){
+  const drop = document.getElementById(id);
+  document.querySelectorAll('.filter-dropdown').forEach(d => {
+    if(d.id !== id) d.classList.remove('open');
+  });
+  drop.classList.toggle('open');
+}
+
+function selectFilter(type, value, label){
+  if(type === 'prop') {
     filterProp = value;
     document.getElementById('propLabel').textContent = label;
-  } else {
+    document.querySelectorAll('#propDrop .filter-option').forEach(o => o.classList.toggle('selected', o.dataset.value === value));
+  } else if(type === 'cuisine') {
+    filterCuisine = value;
+    document.getElementById('cuisineLabel').textContent = label;
+    document.querySelectorAll('#cuisineDrop .filter-option').forEach(o => o.classList.toggle('selected', o.dataset.value === value));
+  } else if(type === 'truck') {
     filterTruck = value;
     document.getElementById('truckLabel').textContent = label;
+    document.querySelectorAll('#truckDrop .filter-option').forEach(o => o.classList.toggle('selected', o.dataset.value === value));
   }
   document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('open'));
-  renderGrid();
+  renderTodayPanel(); renderCalendar(); renderUpcoming(); renderMain();
 }
 
-function populateTruckFilter() {
-  const trucks = [...new Set(allBookings.map(b => b.truck_name))].sort();
-  const dropdown = document.getElementById('truckDrop');
-  if (!dropdown) return;
-  dropdown.innerHTML = '<div class="filter-option selected" onclick="selectFilter(\'truck\', \'all\', \'All Food Trucks\')">All Food Trucks</div>';
-  trucks.forEach(t => {
-    dropdown.innerHTML += `<div class="filter-option" onclick="selectFilter('truck', '${t}', '${t}')">${t}</div>`;
+(function boot() {
+  if (MAINTENANCE_MODE) {
+    renderMaintenance();
+  } else {
+    if(localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
+    calYear=now.getFullYear(); calMonth=now.getMonth();
+    document.getElementById('todayDateLabel').textContent =
+      now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+    loadData();
+  }
+})();
+
+async function loadData() {
+  try {
+    const res  = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${TAB_NAME}?key=${API_KEY}`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message||'Failed to load');
+
+    trucks = (data.values||[]).slice(1)
+      .filter(r=>r[0]&&r[2])
+      .map((r,i)=>({
+        id:i+1, name:(r[0]||'').trim(),
+        property:(r[1]||'').trim(), date:parseDate(r[2]),
+        time:(r[3]||'TBD').trim(),
+        menu:(r[4]||'').trim(),
+        menus:[r[4], r[5], r[6], r[7]]
+          .map(v => (v || '').trim())
+          .filter(Boolean)
+      }));
+
+    const cuisineRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${CUISINE_TAB}?key=${API_KEY}`);
+    const cuisineData = await cuisineRes.json();
+    if(cuisineRes.ok){
+      (cuisineData.values||[]).slice(1).forEach(r => {
+        if(r[0] && r[2]) {
+          cuisineMap[r[0].trim()] = r[2].trim();
+        }
+      });
+    }
+
+    document.getElementById('lastUpdated').textContent =
+      `Updated ${new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`;
+    document.getElementById('errorBanner').classList.remove('show');
+    updateStats(); populateFilters(); renderTodayPanel(); renderCalendar(); renderUpcoming(); renderMain();
+  } catch(err) {
+    document.getElementById('errorBanner').innerHTML=`Could not load schedule. <code>${err.message}</code>`;
+    document.getElementById('errorBanner').classList.add('show');
+    document.getElementById('mainContent').innerHTML='<div class="empty-section"><div class="ei">⚠️</div><div class="em">Schedule unavailable</div></div>';
+    document.getElementById('todayTrucks').innerHTML='<div class="today-empty"><div class="today-empty-txt">Could not load</div></div>';
+  }
+}
+
+function populateFilters(){
+  // Properties
+  const propDrop = document.getElementById('propDrop');
+  PROPS.forEach(p => {
+    propDrop.insertAdjacentHTML('beforeend', `<div class="filter-option" data-value="${p.id}" onclick="selectFilter('prop', '${p.id}', '${p.id}')">${p.id}</div>`);
+  });
+
+  // Cuisines
+  const cuisines = [...new Set(trucks.map(t => cuisineMap[t.name]).filter(Boolean))].sort();
+  const cuisineDrop = document.getElementById('cuisineDrop');
+  cuisines.forEach(c => {
+    cuisineDrop.insertAdjacentHTML('beforeend', `<div class="filter-option" data-value="${c}" onclick="selectFilter('cuisine', '${c}', '${c}')">${c}</div>`);
+  });
+
+  // Trucks
+  const truckNames = [...new Set(trucks.map(t => t.name))].sort();
+  const truckDrop = document.getElementById('truckDrop');
+  truckNames.forEach(name => {
+    truckDrop.insertAdjacentHTML('beforeend', `<div class="filter-option" data-value="${name}" onclick="selectFilter('truck', '${name}', '${name}')">${name}</div>`);
   });
 }
 
-function renderGrid() {
-  const container = document.getElementById('mainContent');
-  if (!container) return;
+function iso(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function parseDate(raw){
+  if(!raw) return '';
+  raw=String(raw).trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+  const p=raw.split('/');
+  if(p.length===3){
+    let year = p[2].trim();
+    if(year.length===2) year = `20${year}`;
+    return `${year}-${p[0].padStart(2,'0')}-${p[1].padStart(2,'0')}`;
+  }
+  if(/^\d+$/.test(raw)){
+    const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+    const serialDate = new Date(excelEpoch);
+    serialDate.setUTCDate(excelEpoch.getUTCDate() + Number(raw));
+    return iso(new Date(serialDate.getUTCFullYear(), serialDate.getUTCMonth(), serialDate.getUTCDate()));
+  }
+  const d=new Date(raw); if(!isNaN(d)) return iso(d);
+  return raw;
+}
+function driveUrl(url){
+  if(!url) return null;
+  if(url.startsWith('http')&&!url.includes('drive.google.com')) {
+    if(url.includes('admincos.github.io/foodtruck-schedule')) {
+      return url.replace('admincos.github.io/foodtruck-schedule', 'raw.githubusercontent.com/AlturasCOS/foodtruck-schedule/main');
+    }
+    return url;
+  }
+  const m=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if(m) return `https://drive.google.com/uc?export=view&id=${m[1]}`;
+  if(!url.startsWith('http')) {
+    return `https://raw.githubusercontent.com/AlturasCOS/foodtruck-schedule/main/menus/${url}`;
+  }
+  return url;
+}
+function getPropColor(name){return PROPS.find(p=>p.id===name)?.color||'#2a5298';}
+function matchFilters(t){
+  const propMatch = filterProp==='all'||t.property===filterProp;
+  const cuisineMatch = filterCuisine==='all'||cuisineMap[t.name]===filterCuisine;
+  const truckMatch = filterTruck==='all'||t.name===filterTruck;
+  return propMatch && cuisineMatch && truckMatch;
+}
+function fmtDate(ds){return new Date(ds+'T00:00:00').toLocaleDateString('en-US',{weekday:'short',month:'long',day:'numeric',year:'numeric'});}
+function fmtDay(ds){return new Date(ds+'T00:00:00').toLocaleDateString('en-US',{weekday:'long'});}
 
-  const filtered = allBookings.filter(b => {
-    const pMatch = filterProp === 'all' || b.property_name === filterProp;
-    const tMatch = filterTruck === 'all' || b.truck_name === filterTruck;
-    return pMatch && tMatch;
-  });
-
-  if (!filtered.length) {
-    container.innerHTML = '<div style="text-align:center; color:var(--muted); padding:60px;">No scheduled food truck visits match your filters.</div>';
+function renderTodayPanel(){
+  const list=trucks.filter(t=>t.date===todayStr&&matchFilters(t));
+  const el=document.getElementById('todayTrucks');
+  if(!list.length){
+    el.innerHTML=`<div class="today-empty"><div class="today-empty-icon">🚚</div><div class="today-empty-txt">No food trucks on site today</div></div>`;
     return;
   }
-
-  container.innerHTML = `<div class="trucks-grid">${filtered.map(b => `
-    <div class="truck-card">
-      <div class="menu-img-wrap">
-        ${b.menu_url ? `<img src="${b.menu_url}" alt="${b.truck_name} Menu" />` : '<div style="display:flex; align-items:center; justify-content:center; height:100%; color:var(--muted); font-size:11px;">NO MENU ATTACHED</div>'}
+  el.innerHTML=list.map(t=>{
+    const col=getPropColor(t.property);
+    return `<div class="today-truck-item" onclick="openLb(${t.id})">
+      <div class="today-truck-icon">🚚</div>
+      <div>
+        <div class="today-truck-name">${t.name} is on site today!</div>
+        <div class="today-truck-meta">${t.time}</div>
+        <div class="today-truck-prop" style="color:${col}">${t.property}</div>
       </div>
-      <div class="card-body">
-        <div class="card-property">${b.property_name}</div>
-        <div class="card-name">${b.truck_name}</div>
-        <div class="card-date">📅 ${b.visit_date}</div>
-        <div class="card-time">⏰ ${b.time_slot || '11:00 AM - 2:00 PM'}</div>
-      </div>
-    </div>
-  `).join('')}</div>`;
+    </div>`;
+  }).join('');
 }
 
-function calNav(dir) {
-  calDate.setMonth(calDate.getMonth() + dir);
+function updateStats(){
+  const up=trucks.filter(t=>t.date>=todayStr);
+  document.getElementById('statVisits').textContent=up.length;
+  document.getElementById('statTrucks').textContent=new Set(trucks.map(t=>t.name)).size;
+}
+
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS=['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+function renderCalendar(){
+  document.getElementById('calLabel').textContent=`${MONTHS[calMonth]} ${calYear}`;
+  const grid=document.getElementById('calGrid');
+  grid.innerHTML=DAYS.map(d=>`<div class="cal-day-label">${d}</div>`).join('');
+  const {start:wS,end:wE}=getWeekBounds();
+  const first=new Date(calYear,calMonth,1).getDay();
+  const total=new Date(calYear,calMonth+1,0).getDate();
+  for(let i=0;i<first;i++) grid.insertAdjacentHTML('beforeend','<div class="cal-day empty"></div>');
+  for(let d=1;d<=total;d++){
+    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const evts=trucks.filter(t=>t.date===ds&&matchFilters(t));
+    let cls='cal-day';
+    if(ds===todayStr) cls+=' today';
+    if(evts.length)   cls+=' has-event';
+    if(ds>=wS&&ds<=wE) cls+=' in-week';
+    if(ds===filterDate) cls+=' selected';
+    grid.insertAdjacentHTML('beforeend',`<div class="${cls}" onclick="selectDate('${ds}')">${d}</div>`);
+  }
+  const leg=document.getElementById('legend');
+  leg.innerHTML='';
+  PROPS.forEach(p=>{
+    const n=trucks.filter(t=>t.property===p.id&&t.date>=todayStr).length;
+    leg.insertAdjacentHTML('beforeend',
+      `<div class="legend-item"><div class="legend-dot" style="background:${p.color}"></div>${p.id}<span class="legend-count">${n}</span></div>`);
+  });
+}
+
+function selectDate(ds){
+  filterDate = filterDate===ds ? null : ds;
+  renderCalendar(); renderMain();
+  document.getElementById('mainContent').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function calNav(dir){
+  calMonth+=dir;
+  if(calMonth>11){calMonth=0;calYear++;}
+  if(calMonth<0){calMonth=11;calYear--;}
   renderCalendar();
 }
 
-function renderCalendar() {
-  const y = calDate.getFullYear();
-  const m = calDate.getMonth();
-  const calLabel = document.getElementById('calLabel');
-  if (calLabel) calLabel.textContent = new Date(y, m).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-
-  const firstDay = new Date(y, m, 1).getDay();
-  const daysInMonth = new Date(y, m + 1, 0).getDate();
-  const grid = document.getElementById('calGrid');
-  if (!grid) return;
-
-  grid.innerHTML = ['S','M','T','W','T','F','S'].map(d => `<div class="cal-day-label">${d}</div>`).join('');
-
-  for (let i = 0; i < firstDay; i++) grid.innerHTML += '<div class="cal-day empty"></div>';
-
-  const monthIsoPrefix = `${y}-${String(m + 1).padStart(2, '0')}`;
-  const bookedDates = new Set(allBookings.filter(b => b.visit_date && b.visit_date.startsWith(monthIsoPrefix)).map(b => b.visit_date));
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const dayStr = `${monthIsoPrefix}-${String(day).padStart(2, '0')}`;
-    const hasEvent = bookedDates.has(dayStr);
-    grid.innerHTML += `<div class="cal-day ${hasEvent ? 'has-event' : ''}">${day}</div>`;
-  }
+function renderUpcoming(){
+  const list=document.getElementById('upcomingList');
+  const items=trucks.filter(t=>t.date>=todayStr&&matchFilters(t)).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,6);
+  if(!items.length){list.innerHTML='<div style="padding:0 22px 10px;font-size:11px;color:var(--muted)">No upcoming visits.</div>';return;}
+  list.innerHTML=items.map(t=>{
+    const dt=new Date(t.date+'T00:00:00'),col=getPropColor(t.property);
+    return `<div class="upcoming-item" onclick="openLb(${t.id})">
+      <div class="upcoming-badge" style="background:${col}">
+        <div class="uday">${dt.getDate()}</div>
+        <div class="umon">${dt.toLocaleString('default',{month:'short'})}</div>
+      </div>
+      <div>
+        <div class="upcoming-name">${t.name}</div>
+        <div class="upcoming-prop">${t.property} · ${t.time}</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
-function renderUpcoming() {
-  const todayIso = new Date().toISOString().split('T')[0];
-  const upcoming = allBookings.filter(b => b.visit_date >= todayIso).slice(0, 5);
-  const container = document.getElementById('upcomingList');
+function renderMain(){
+  const {start:wS,end:wE}=getWeekBounds();
+  let filtered=trucks.filter(t=>matchFilters(t));
+  
+  const label=filterProp==='all'?'All <span style="color:var(--accent-light)">Visits</span>':`<span style="color:var(--accent-light)">${filterProp}</span>`;
+  const wEndDt=new Date(wE+'T00:00:00');
 
-  if (!container) return;
+  let html=`<div class="content-main-title">${label}</div>`;
 
-  if (!upcoming.length) {
-    container.innerHTML = '<div style="color:var(--muted); font-size:12px; padding:10px 0;">No upcoming visits.</div>';
+  if(filterDate){
+    const dateFiltered = filtered.filter(t=>t.date===filterDate);
+    const dt=new Date(filterDate+'T00:00:00');
+    const dateStr=dt.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+    
+    html+=`<div style="margin-bottom:18px;padding:12px 16px;background:rgba(42,82,152,0.1);border:1px solid rgba(42,82,152,0.3);border-radius:8px;display:flex;align-items:center;gap:12px;">
+      <span style="font-size:13px;color:var(--accent-light);">Showing visits for: <strong>${dateStr}</strong></span>
+      <button onclick="clearDateFilter()" style="margin-left:auto;padding:6px 14px;background:transparent;border:1px solid rgba(42,82,152,0.4);border-radius:6px;color:var(--accent-light);font-size:11px;font-weight:600;cursor:pointer;letter-spacing:1px;text-transform:uppercase;">Clear Filter</button>
+    </div>`;
+    
+    let badgeClass = 'badge-week';
+    let badgeLabel = 'Selected Date';
+    if(filterDate === todayStr){
+      badgeClass = 'badge-week';
+      badgeLabel = 'Today';
+    } else if(filterDate < todayStr){
+      badgeClass = 'badge-past';
+      badgeLabel = 'Past Visit';
+    } else if(filterDate > wE){
+      badgeClass = 'badge-future';
+      badgeLabel = 'Upcoming';
+    }
+    
+    html+=`<div class="section-head">
+      <span class="section-badge ${badgeClass}">${badgeLabel}</span>
+      <span class="section-title">${dateStr}</span>
+      <span class="section-count">${dateFiltered.length} visit${dateFiltered.length!==1?'s':''}</span>
+    </div>`;
+    
+    if(dateFiltered.length){
+      html+=`<div class="trucks-grid">${dateFiltered.map(t=>cardHtml(t,t.date===todayStr,t.date<todayStr)).join('')}</div>`;
+    } else {
+      html+=`<div class="empty-section"><div class="ei">🚚</div><div class="em">No truck visits on this date</div></div>`;
+    }
+    
+    document.getElementById('mainContent').innerHTML=html;
     return;
   }
 
-  container.innerHTML = upcoming.map(b => {
-    const dt = new Date(b.visit_date + 'T00:00:00');
-    return `
-      <div class="upcoming-item">
-        <div class="upcoming-badge">
-          <div class="uday">${dt.getDate()}</div>
-          <div class="umon">${dt.toLocaleDateString('en-US', { month: 'short' })}</div>
-        </div>
-        <div>
-          <div class="upcoming-name">${b.truck_name}</div>
-          <div class="upcoming-prop">${b.property_name}</div>
-        </div>
-      </div>
-    `;
-  }).join('');
+  const thisWeek=filtered.filter(t=>t.date>=wS&&t.date<=wE).sort((a,b)=>a.date.localeCompare(b.date));
+  const future  =filtered.filter(t=>t.date>wE).sort((a,b)=>a.date.localeCompare(b.date));
+  const past    =filtered.filter(t=>t.date<wS).sort((a,b)=>b.date.localeCompare(a.date));
+
+  html+=`<div class="section-head">
+    <span class="section-badge badge-week">This Week</span>
+    <span class="section-title">${MONTHS[now.getMonth()]} ${now.getDate()} – ${wEndDt.toLocaleDateString('en-US',{month:'long',day:'numeric'})}</span>
+    <span class="section-count">${thisWeek.length} visit${thisWeek.length!==1?'s':''}</span>
+  </div>`;
+  html+=thisWeek.length
+    ?`<div class="trucks-grid">${thisWeek.map(t=>cardHtml(t,t.date===todayStr,false)).join('')}</div>`
+    :`<div class="empty-section"><div class="ei">🚚</div><div class="em">No truck visits this week</div></div>`;
+
+  html+=`<div class="section-head">
+    <span class="section-badge badge-future">Upcoming</span>
+    <span class="section-title">Future Visits</span>
+    <span class="section-count">${future.length} visit${future.length!==1?'s':''}</span>
+  </div>`;
+  html+=future.length
+    ?`<div class="trucks-grid">${future.map(t=>cardHtml(t,false,false)).join('')}</div>`
+    :`<div class="empty-section"><div class="ei">📅</div><div class="em">No future visits scheduled yet</div></div>`;
+
+  html+=`<button class="past-toggle" id="pastToggle" onclick="togglePast()">
+    <span class="section-badge badge-past">Past Visits</span>
+    <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--muted);">Previous Food Truck Visits</span>
+    <span style="font-size:11px;color:var(--muted);">${past.length} visit${past.length!==1?'s':''}</span>
+    <span class="past-arrow">▼</span>
+  </button>
+  <div class="past-content" id="pastContent">
+    <div class="trucks-grid">${past.map(t=>cardHtml(t,false,true)).join('')}</div>
+  </div>`;
+
+  document.getElementById('mainContent').innerHTML=html;
+}
+
+function clearDateFilter(){
+  filterDate=null;
+  renderCalendar(); renderMain();
+}
+
+function cardHtml(t,isToday,isPast){
+  const col=getPropColor(t.property),src=driveUrl((t.menus && t.menus[0]) || t.menu);
+  return `<div class="truck-card${isToday?' today-card':''}${isPast?' past-card':''}" onclick="openLb(${t.id})">
+    <div class="menu-img-wrap">
+      <div class="prop-ribbon" style="color:${col}">${t.property}</div>
+      ${isToday?'<div class="today-pill">Today</div>':''}
+      ${src
+        ?`<img src="${src}" alt="Menu" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div class="menu-placeholder" style="display:none"><div class="ph-icon">🍽</div><div class="ph-text">Image Unavailable</div></div>`
+        :`<div class="menu-placeholder"><div class="ph-icon">🍽</div><div class="ph-text">Menu Coming Soon</div></div>`
+      }
+      <div class="zoom-hint">⊕</div>
+    </div>
+    <div class="card-body">
+      <div class="card-day-tag" style="color:${isToday?'var(--accent-light)':isPast?'var(--muted)':'var(--accent3)'}">${isToday?'ON SITE TODAY':fmtDay(t.date).toUpperCase()}</div>
+      <div class="card-name">${t.name}</div>
+      <div class="card-divider"></div>
+      <div class="card-property">${t.property}</div>
+      <div class="card-date">— ${fmtDate(t.date)}</div>
+      <div class="card-time">${t.time}</div>
+    </div>
+  </div>`;
+}
+
+function togglePast(){
+  document.getElementById('pastToggle').classList.toggle('open');
+  document.getElementById('pastContent').classList.toggle('open');
+}
+
+let currentMenuUrls = [];
+
+function openLb(id){
+  const t=trucks.find(x=>x.id===id); if(!t) return;
+  const dt=new Date(t.date+'T00:00:00');
+  
+  document.getElementById('lbName').textContent=t.name;
+  document.getElementById('lbProp').textContent=t.property;
+  document.getElementById('lbDate').textContent=`${dt.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})} · ${t.time}`;
+  
+  const wrap=document.getElementById('lbImgWrap');
+  const actions=document.getElementById('lbActions');
+  
+  const menuUrls = (t.menus && t.menus.length)
+    ? t.menus.flatMap(url => url.split('|').map(u => u.trim()).filter(Boolean))
+    : (t.menu ? t.menu.split('|').map(u=>u.trim()).filter(u=>u) : []);
+  currentMenuUrls = menuUrls.map(driveUrl).filter(u=>u);
+  
+  if(!currentMenuUrls.length){
+    wrap.innerHTML='<div class="lb-no-img">No menu image available yet.</div>';
+    actions.style.display='none';
+    document.getElementById('lightbox').classList.add('open');
+    return;
+  }
+  
+  const firstUrl = currentMenuUrls[0];
+  
+  if(firstUrl.toLowerCase().endsWith('.pdf')){
+    wrap.innerHTML=`<a href="${firstUrl}" target="_blank" class="lb-pdf-btn">📄 Open Full Menu (PDF)</a>`;
+    actions.style.display='none';
+  } else {
+    wrap.innerHTML = currentMenuUrls.map((url,i)=>`<img src="${url}" alt="Menu page ${i+1}" style="width:100%;display:block;${i>0?'margin-top:10px;':''}" onerror="this.style.display='none'"/>`).join('');
+    actions.style.display='flex';
+  }
+  
+  document.getElementById('lightbox').classList.add('open');
+}
+
+function downloadMenu(){
+  if(!currentMenuUrls.length) return;
+  if(currentMenuUrls.length===1){
+    const url=currentMenuUrls[0];
+    const link=document.createElement('a');
+    link.href=url;
+    link.download=`menu-${Date.now()}.jpg`;
+    link.target='_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } else {
+    currentMenuUrls.forEach(url=>window.open(url,'_blank'));
+  }
+}
+
+function openMenuFull(){
+  if(!currentMenuUrls.length) return;
+  currentMenuUrls.forEach(url=>window.open(url,'_blank'));
+}
+
+function closeLb(e){
+  if(!e||e.target===document.getElementById('lightbox')||e.target.classList.contains('lb-close')){
+    document.getElementById('lightbox').classList.remove('open');
+    currentMenuUrls=[];
+  }
 }
 
 async function handleRecommendSubmit(e) {
   e.preventDefault();
-  const user_name = document.getElementById('recName').value;
-  const user_email = document.getElementById('recEmail').value;
-  const property_name = document.getElementById('recProp').value;
-  const truck_name = document.getElementById('recTruck').value;
-  const truck_link = document.getElementById('recLink').value || 'N/A';
-
-  await sb.from('recommendations').insert([{ user_name, user_email, property_name, truck_name, truck_link }]);
-  document.getElementById('recSuccess').style.display = 'block';
-  setTimeout(() => closeModal('recommendModal'), 2000);
+  alert("Thank you! Your recommendation has been submitted.");
+  closeModal('recommendModal');
 }
 
 async function handleJoinSubmit(e) {
   e.preventDefault();
-  const full_name = document.getElementById('joinName').value;
-  const email = document.getElementById('joinEmail').value;
-  const company = document.getElementById('joinCompany').value;
-  const property_name = document.getElementById('joinProp').value;
-
-  await sb.from('notifications').insert([{ full_name, email, company, property_name }]);
-  document.getElementById('joinSuccess').style.display = 'block';
-  setTimeout(() => closeModal('joinListModal'), 2000);
+  alert("Thank you! You have been added to the notification list.");
+  closeModal('joinListModal');
 }
 
-document.addEventListener('DOMContentLoaded', loadData);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLb();});
+document.addEventListener('click', e => {
+  if(!e.target.closest('.filter-group')) {
+    document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('open'));
+  }
+});
 </script>
 </body>
 </html>
