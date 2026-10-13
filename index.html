@@ -349,7 +349,8 @@ body.light-mode .zoom-hint{background:rgba(0,0,0,.5);}
 }
 .card-body{padding:14px 16px 16px;}
 .card-day-tag{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
-.card-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;line-height:1.1;margin-bottom:10px;}
+.card-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;line-height:1.1;margin-bottom:4px;}
+.card-cuisine{font-size:11px;color:var(--accent-light);font-weight:600;margin-bottom:10px;}
 .card-divider{height:1px;background:var(--border);margin-bottom:10px;}
 .card-property{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-weight:600;}
 .card-date{font-size:12px;color:var(--accent-light);font-weight:600;}
@@ -379,7 +380,6 @@ body.light-mode .lightbox{background:rgba(0,0,0,.92);}
 .lb-img-wrap{overflow-y:auto;border-radius:8px;border:1px solid var(--border);flex:1;max-height:70vh;}
 .lb-img{width:100%;display:block;}
 .lb-no-img{padding:60px;text-align:center;color:var(--muted);font-size:14px;}
-.lb-pdf-viewer{width:100%;height:70vh;border:none;border-radius:8px;}
 .lb-pdf-btn{
   display:block;width:100%;padding:20px;
   background:linear-gradient(135deg,var(--accent),#1a4a6b);
@@ -624,18 +624,12 @@ footer{
 </div>
 
 <script>
-/*
-  MAINTENANCE SWITCH
-  true  = show maintenance page
-  false = show live food truck website
-*/
 const MAINTENANCE_MODE = false;
 
 const SHEET_ID = '1u1g0pz_jI92Eifju4YeNTX6jkmk1MGmDJLsX6h40Bko';
 const API_KEY  = 'AIzaSyAD4pFQpfqcfzqpYeXiUUG8VTP5GCQm-Ok';
 const TAB_NAME = 'Sheet1';
 const CUISINE_TAB = 'Sheet2';
-const LOGO_URL = 'https://raw.githubusercontent.com/AlturasCOS/foodtruck-schedule/main/acp.png';
 
 const PROPS = [
   { id:'Northcreek',       color:'#2a5298' },
@@ -653,22 +647,6 @@ const todayStr = iso(now);
 function openRecommendModal() { document.getElementById('recommendModal').classList.add('open'); }
 function openJoinListModal() { document.getElementById('joinListModal').classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-function renderMaintenance() {
-  document.title = 'Scheduled Maintenance | Alturas Capital Partners';
-  document.getElementById('app').innerHTML = `
-    <main class="maintenance-screen">
-      <section class="maintenance-card" aria-labelledby="maintenanceTitle">
-        <img class="maintenance-logo" src="${LOGO_URL}" alt="Alturas Capital Partners logo">
-        <div class="maintenance-icon" aria-hidden="true">🚧</div>
-        <h1 class="maintenance-title" id="maintenanceTitle">Scheduled Maintenance</h1>
-        <p class="maintenance-copy">
-          The Alturas Capital Partners Food Truck Schedule is temporarily unavailable while updates are being completed.
-        </p>
-        <p class="maintenance-note">Please check back again soon</p>
-      </section>
-    </main>`;
-}
 
 function getWeekBounds() {
   const d = new Date(now), day = d.getDay();
@@ -709,44 +687,48 @@ function selectFilter(type, value, label){
 }
 
 (function boot() {
-  if (MAINTENANCE_MODE) {
-    renderMaintenance();
-  } else {
-    if(localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
-    calYear=now.getFullYear(); calMonth=now.getMonth();
-    document.getElementById('todayDateLabel').textContent =
-      now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
-    loadData();
-  }
+  if(localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
+  calYear=now.getFullYear(); calMonth=now.getMonth();
+  document.getElementById('todayDateLabel').textContent =
+    now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  loadData();
 })();
 
 async function loadData() {
   try {
-    const res  = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${TAB_NAME}?key=${API_KEY}`);
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error?.message||'Failed to load');
-
-    trucks = (data.values||[]).slice(1)
-      .filter(r=>r[0]&&r[2])
-      .map((r,i)=>({
-        id:i+1, name:(r[0]||'').trim(),
-        property:(r[1]||'').trim(), date:parseDate(r[2]),
-        time:(r[3]||'TBD').trim(),
-        menu:(r[4]||'').trim(),
-        menus:[r[4], r[5], r[6], r[7]]
-          .map(v => (v || '').trim())
-          .filter(Boolean)
-      }));
-
+    // 1. Fetch Sheet2 (Food Trucks & Cuisine Directory)
     const cuisineRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${CUISINE_TAB}?key=${API_KEY}`);
     const cuisineData = await cuisineRes.json();
-    if(cuisineRes.ok){
-      (cuisineData.values||[]).slice(1).forEach(r => {
-        if(r[0] && r[2]) {
+    if (cuisineRes.ok && cuisineData.values) {
+      cuisineData.values.slice(1).forEach(r => {
+        if (r[0] && r[2]) {
           cuisineMap[r[0].trim()] = r[2].trim();
         }
       });
     }
+
+    // 2. Fetch Sheet1 (Scheduled Visits)
+    const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${TAB_NAME}?key=${API_KEY}`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || 'Failed to load');
+
+    trucks = (data.values || []).slice(1)
+      .filter(r => r[0] && r[2])
+      .map((r, i) => {
+        const truckName = (r[0] || '').trim();
+        return {
+          id: i + 1,
+          name: truckName,
+          property: (r[1] || '').trim(),
+          date: parseDate(r[2]),
+          time: (r[3] || 'TBD').trim(),
+          cuisine: cuisineMap[truckName] || '',
+          menu: (r[4] || '').trim(),
+          menus: [r[4], r[5], r[6], r[7]]
+            .map(v => (v || '').trim())
+            .filter(Boolean)
+        };
+      });
 
     document.getElementById('lastUpdated').textContent =
       `Updated ${new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`;
@@ -763,13 +745,15 @@ async function loadData() {
 function populateFilters(){
   // Properties
   const propDrop = document.getElementById('propDrop');
+  propDrop.innerHTML = '<div class="filter-option selected" data-value="all" onclick="selectFilter(\'prop\', \'all\', \'All Properties\')">All Properties</div>';
   PROPS.forEach(p => {
     propDrop.insertAdjacentHTML('beforeend', `<div class="filter-option" data-value="${p.id}" onclick="selectFilter('prop', '${p.id}', '${p.id}')">${p.id}</div>`);
   });
 
   // Cuisines
-  const cuisines = [...new Set(trucks.map(t => cuisineMap[t.name]).filter(Boolean))].sort();
+  const cuisines = [...new Set(trucks.map(t => t.cuisine).filter(Boolean))].sort();
   const cuisineDrop = document.getElementById('cuisineDrop');
+  cuisineDrop.innerHTML = '<div class="filter-option selected" data-value="all" onclick="selectFilter(\'cuisine\', \'all\', \'All Cuisines\')">All Cuisines</div>';
   cuisines.forEach(c => {
     cuisineDrop.insertAdjacentHTML('beforeend', `<div class="filter-option" data-value="${c}" onclick="selectFilter('cuisine', '${c}', '${c}')">${c}</div>`);
   });
@@ -777,12 +761,14 @@ function populateFilters(){
   // Trucks
   const truckNames = [...new Set(trucks.map(t => t.name))].sort();
   const truckDrop = document.getElementById('truckDrop');
+  truckDrop.innerHTML = '<div class="filter-option selected" data-value="all" onclick="selectFilter(\'truck\', \'all\', \'All Food Trucks\')">All Food Trucks</div>';
   truckNames.forEach(name => {
     truckDrop.insertAdjacentHTML('beforeend', `<div class="filter-option" data-value="${name}" onclick="selectFilter('truck', '${name}', '${name}')">${name}</div>`);
   });
 }
 
 function iso(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+
 function parseDate(raw){
   if(!raw) return '';
   raw=String(raw).trim();
@@ -802,6 +788,7 @@ function parseDate(raw){
   const d=new Date(raw); if(!isNaN(d)) return iso(d);
   return raw;
 }
+
 function driveUrl(url){
   if(!url) return null;
   if(url.startsWith('http')&&!url.includes('drive.google.com')) {
@@ -817,13 +804,16 @@ function driveUrl(url){
   }
   return url;
 }
+
 function getPropColor(name){return PROPS.find(p=>p.id===name)?.color||'#2a5298';}
+
 function matchFilters(t){
   const propMatch = filterProp==='all'||t.property===filterProp;
-  const cuisineMatch = filterCuisine==='all'||cuisineMap[t.name]===filterCuisine;
+  const cuisineMatch = filterCuisine==='all'||t.cuisine===filterCuisine;
   const truckMatch = filterTruck==='all'||t.name===filterTruck;
   return propMatch && cuisineMatch && truckMatch;
 }
+
 function fmtDate(ds){return new Date(ds+'T00:00:00').toLocaleDateString('en-US',{weekday:'short',month:'long',day:'numeric',year:'numeric'});}
 function fmtDay(ds){return new Date(ds+'T00:00:00').toLocaleDateString('en-US',{weekday:'long'});}
 
@@ -840,7 +830,7 @@ function renderTodayPanel(){
       <div class="today-truck-icon">🚚</div>
       <div>
         <div class="today-truck-name">${t.name} is on site today!</div>
-        <div class="today-truck-meta">${t.time}</div>
+        <div class="today-truck-meta">${t.time} ${t.cuisine ? `· ${t.cuisine}` : ''}</div>
         <div class="today-truck-prop" style="color:${col}">${t.property}</div>
       </div>
     </div>`;
@@ -1004,7 +994,7 @@ function clearDateFilter(){
 }
 
 function cardHtml(t,isToday,isPast){
-  const col=getPropColor(t.property),src=driveUrl((t.menus && t.menus[0]) || t.menu);
+  const col=getPropColor(t.property), src=driveUrl((t.menus && t.menus[0]) || t.menu);
   return `<div class="truck-card${isToday?' today-card':''}${isPast?' past-card':''}" onclick="openLb(${t.id})">
     <div class="menu-img-wrap">
       <div class="prop-ribbon" style="color:${col}">${t.property}</div>
@@ -1019,6 +1009,7 @@ function cardHtml(t,isToday,isPast){
     <div class="card-body">
       <div class="card-day-tag" style="color:${isToday?'var(--accent-light)':isPast?'var(--muted)':'var(--accent3)'}">${isToday?'ON SITE TODAY':fmtDay(t.date).toUpperCase()}</div>
       <div class="card-name">${t.name}</div>
+      ${t.cuisine ? `<div class="card-cuisine">${t.cuisine}</div>` : ''}
       <div class="card-divider"></div>
       <div class="card-property">${t.property}</div>
       <div class="card-date">— ${fmtDate(t.date)}</div>
@@ -1075,12 +1066,8 @@ function downloadMenu(){
   if(currentMenuUrls.length===1){
     const url=currentMenuUrls[0];
     const link=document.createElement('a');
-    link.href=url;
-    link.download=`menu-${Date.now()}.jpg`;
-    link.target='_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    link.href=url; link.download=`menu-${Date.now()}.jpg`; link.target='_blank';
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
   } else {
     currentMenuUrls.forEach(url=>window.open(url,'_blank'));
   }
@@ -1098,13 +1085,13 @@ function closeLb(e){
   }
 }
 
-async function handleRecommendSubmit(e) {
+function handleRecommendSubmit(e) {
   e.preventDefault();
   alert("Thank you! Your recommendation has been submitted.");
   closeModal('recommendModal');
 }
 
-async function handleJoinSubmit(e) {
+function handleJoinSubmit(e) {
   e.preventDefault();
   alert("Thank you! You have been added to the notification list.");
   closeModal('joinListModal');
